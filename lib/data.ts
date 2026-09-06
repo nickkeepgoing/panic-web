@@ -197,7 +197,7 @@ export async function getProjects(): Promise<Project[]> {
   if (!hasSupabase) return SAMPLE_PROJECTS;
   const { data, error } = await anonClient()
     .from('projects')
-    .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, categories(name_th)')
+    .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, categories(name_th)')
     .eq('status', 'published')
     .order('published_at', { ascending: false });
   if (error || !data) return SAMPLE_PROJECTS;

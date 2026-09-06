@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getProject, getProjects } from '@/lib/data';
 import { DIFFICULTY_TH, budgetLabel, gradeLabel } from '@/lib/types';
@@ -29,7 +30,21 @@ export default async function ProjectPage({ params }: { params: { slug: string }
   return (
     <article className="flex flex-col gap-10">
       <header className="overflow-hidden rounded-card border border-line bg-surface">
-        <div className={`h-2 w-full ${c.bar}`} aria-hidden />
+        {project.cover_url ? (
+          <div className="relative h-56 w-full sm:h-72">
+            <Image
+              src={project.cover_url}
+              alt={project.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 896px"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+          </div>
+        ) : (
+          <div className={`h-2 w-full ${c.bar}`} aria-hidden />
+        )}
         <div className="flex flex-col gap-4 p-6 sm:p-8">
           <div className="flex items-center gap-3 text-sm">
             <Link href={`/projects?cat=${encodeURIComponent(project.category)}`} className={`rounded-md px-2 py-0.5 font-medium ${c.bg} ${c.text}`}>
