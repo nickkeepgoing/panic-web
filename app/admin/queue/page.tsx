@@ -4,7 +4,7 @@ import { setProjectStatus } from '../actions';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminQueue() {
-  const { data } = await (await serverClient())
+  const { data } = await serverClient()
     .from('projects')
     .select('id, title, summary, created_at, profiles:submitted_by(display_name)')
     .eq('status', 'pending')

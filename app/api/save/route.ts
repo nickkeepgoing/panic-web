@@ -5,7 +5,7 @@ import { hasSupabase } from '@/lib/supabase/config';
 export async function POST(request: Request) {
   if (!hasSupabase) return NextResponse.json({ error: 'no-db' }, { status: 503 });
 
-  const sb = await serverClient();
+  const sb = serverClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
 

@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/me';
 
   if (code && hasSupabase) {
-    const sb = await serverClient();
+    const sb = serverClient();
     const { error } = await sb.auth.exchangeCodeForSession(code);
     if (!error) {
       // สร้างแถวใน profiles ให้ผู้ใช้ใหม่ครั้งแรกที่เข้าระบบ

@@ -4,7 +4,7 @@ import { serverClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminOverview() {
-  const sb = await serverClient();
+  const sb = serverClient();
   const [projects, published, pending, comps] = await Promise.all([
     sb.from('projects').select('id', { count: 'exact', head: true }),
     sb.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'published'),

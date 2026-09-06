@@ -4,7 +4,7 @@ import { createProject } from '../../actions';
 export const dynamic = 'force-dynamic';
 
 export default async function NewProject() {
-  const { data: categories } = await (await serverClient()).from('categories').select('id, name_th').order('sort_order');
+  const { data: categories } = await serverClient().from('categories').select('id, name_th').order('sort_order');
 
   return (
     <form action={createProject} className="flex max-w-2xl flex-col gap-4">
@@ -45,7 +45,7 @@ export default async function NewProject() {
       <Field label="เอาไว้ทำอะไร"><textarea name="purpose_md" rows={3} className={input} /></Field>
       <Field label="ยากไหม"><textarea name="difficulty_md" rows={3} className={input} /></Field>
 
-      <Field label="วิธีทำ — บรรทัดละขั้น ใช้รูปแบบ “หัวข้อ — รายละเอียด”">
+      <Field label="วิธีทำ — บรรทัดละขั้น ใช้รูปแบบ "หัวข้อ — รายละเอียด"">
         <textarea name="steps" rows={5} className={input} placeholder={'ทดลองอ่านค่าเซ็นเซอร์ — วัดระยะในถังน้ำ จดค่าที่ได้\nแปลงค่าเป็นเซนติเมตร — เขียนโปรแกรมแปลงค่าดิบ'} />
       </Field>
 

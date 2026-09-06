@@ -15,7 +15,7 @@ export default async function MePage() {
   const profile = await getProfile();
   if (!profile) redirect('/login?next=/me');
 
-  const sb = await serverClient();
+  const sb = serverClient();
   const [{ data: saves }, { data: follows }] = await Promise.all([
     sb.from('saved_projects')
       .select('progress_percent, created_at, projects(id, slug, title, summary, difficulty, duration_weeks)')

@@ -5,7 +5,7 @@ import { createCompetition } from '../actions';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminCompetitions() {
-  const { data } = await (await serverClient())
+  const { data } = await serverClient()
     .from('competitions')
     .select('id, name, organizer, open_at, close_at, status')
     .order('close_at', { ascending: false })

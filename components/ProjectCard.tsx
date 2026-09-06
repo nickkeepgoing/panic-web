@@ -1,24 +1,35 @@
 import Link from 'next/link';
+import { categoryStyle } from '@/lib/categories';
 import { DIFFICULTY_TH, budgetLabel, type Project } from '@/lib/types';
 
 export function ProjectCard({ project }: { project: Project }) {
+  const c = categoryStyle(project.category);
+
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group flex flex-col gap-2 rounded-card border border-line bg-surface p-5 hover:border-brand"
+      className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface hover:shadow-lift"
     >
-      <span className="w-fit rounded-full bg-brand-light px-2.5 py-0.5 text-xs text-brand-deep">
-        {project.category}
+      <span className={`h-1.5 w-full ${c.bar}`} aria-hidden />
+      <span className="flex flex-1 flex-col gap-2 p-5">
+        <span className={`w-fit rounded-md px-2 py-0.5 text-xs font-medium ${c.bg} ${c.text}`}>
+          {project.category}
+        </span>
+        <span className="font-display text-lg font-semibold text-ink group-hover:text-brand-deep">
+          {project.title}
+        </span>
+        <span className="text-sm text-muted">{project.summary}</span>
+
+        <span className="mt-auto flex flex-wrap gap-1.5 pt-4 text-xs">
+          <Fact>{DIFFICULTY_TH[project.difficulty]}</Fact>
+          <Fact>{budgetLabel(project.budget_min, project.budget_max)}</Fact>
+          <Fact>{project.duration_weeks} สัปดาห์</Fact>
+        </span>
       </span>
-      <h3 className="font-display text-lg font-medium text-ink group-hover:text-brand-deep">
-        {project.title}
-      </h3>
-      <p className="text-sm text-muted">{project.summary}</p>
-      <dl className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-3 text-xs text-muted">
-        <div><dt className="sr-only">ความยาก</dt><dd>{DIFFICULTY_TH[project.difficulty]}</dd></div>
-        <div><dt className="sr-only">งบประมาณ</dt><dd>{budgetLabel(project.budget_min, project.budget_max)}</dd></div>
-        <div><dt className="sr-only">ระยะเวลา</dt><dd>{project.duration_weeks} สัปดาห์</dd></div>
-      </dl>
     </Link>
   );
+}
+
+function Fact({ children }: { children: React.ReactNode }) {
+  return <span className="rounded-md bg-ground px-2 py-1 text-muted">{children}</span>;
 }

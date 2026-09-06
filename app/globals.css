@@ -5,20 +5,29 @@
 :root { color-scheme: light; }
 
 body {
-  background: #F7EAF1;
-  color: #2A1B24;
-  line-height: 1.8;
+  background: #FBF4F7;
+  color: #241019;
+  line-height: 1.75;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ภาษาไทยวางสระและวรรณยุกต์บนล่างบรรทัด จึงต้องการ line-height สูงกว่าปกติ
-   และห้ามบีบ letter-spacing */
-h1, h2, h3 { line-height: 1.4; letter-spacing: 0; }
+   หัวเรื่องบีบได้ถึง 1.35 แต่ห้ามต่ำกว่านั้น สระจะชนกัน */
+h1, h2, h3 { line-height: 1.35; letter-spacing: 0; text-wrap: balance; }
+p { text-wrap: pretty; }
 
 :focus-visible {
   outline: 2px solid #C22367;
-  outline-offset: 2px;
+  outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* เส้นตารางจาง ๆ ในส่วนหัว ให้ความรู้สึกกระดาษกราฟในสมุดทดลอง */
+.grid-paper {
+  background-image:
+    linear-gradient(to right, rgba(194, 35, 103, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(194, 35, 103, 0.07) 1px, transparent 1px);
+  background-size: 26px 26px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans_Thai, Anuphan } from 'next/font/google';
+import { IBM_Plex_Sans_Thai, Bai_Jamjuree } from 'next/font/google';
 import Link from 'next/link';
 import { AuthNav } from '@/components/AuthNav';
 import './globals.css';
@@ -11,9 +11,9 @@ const body = IBM_Plex_Sans_Thai({
   display: 'swap',
 });
 
-const display = Anuphan({
+const display = Bai_Jamjuree({
   subsets: ['thai', 'latin'],
-  weight: ['500', '600'],
+  weight: ['500', '600', '700'],
   variable: '--font-display',
   display: 'swap',
 });
@@ -34,10 +34,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="th" className={`${body.variable} ${display.variable}`}>
       <body className="font-sans">
-        <header className="border-b border-line bg-surface">
-          <div className="mx-auto flex max-w-6xl items-center gap-6 px-5 py-3">
-            <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-semibold text-ink">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-sm text-white">P</span>
+        <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-3">
+            <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold tracking-tight text-ink">
+              <span className="flex h-8 items-center gap-px rounded-md px-1.5" aria-hidden>
+                <i className="h-4 w-1 rounded-sm bg-sci" />
+                <i className="h-5 w-1 rounded-sm bg-tech" />
+                <i className="h-6 w-1 rounded-sm bg-engr" />
+                <i className="h-5 w-1 rounded-sm bg-envi" />
+                <i className="h-4 w-1 rounded-sm bg-soci" />
+              </span>
               P.A.N.I.C.
             </Link>
             <nav className="ml-auto flex items-center gap-1 text-sm">
@@ -45,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link
                   key={n.href}
                   href={n.href}
-                  className="rounded-lg px-3 py-1.5 text-muted hover:bg-brand-light hover:text-brand-deep"
+                  className="hidden rounded-lg px-3 py-1.5 text-muted hover:bg-brand-light hover:text-brand-deep sm:block"
                 >
                   {n.label}
                 </Link>
@@ -57,13 +63,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <main className="mx-auto max-w-6xl px-5 py-10">{children}</main>
 
-        <footer className="border-t border-line bg-surface">
-          <div className="mx-auto max-w-6xl px-5 py-8 text-sm text-muted">
-            <p className="max-w-prose">
-              โครงงานทุกเรื่องในคลังนี้เป็นไอเดียตั้งต้น ไม่ใช่ผลงานสำเร็จรูป ทุกหน้ามีหัวข้อ
-              “จุดที่ควรต่อยอดให้เป็นของตัวเอง” เพราะสิ่งที่กรรมการให้คะแนนคือส่วนที่คุณคิดเพิ่ม
-              ไม่ใช่ส่วนที่ทำตาม
+        <footer className="mt-16 border-t border-line bg-surface">
+          <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 sm:flex-row sm:gap-10">
+            <p className="max-w-md text-sm text-muted">
+              โครงงานทุกเรื่องที่นี่เป็นไอเดียตั้งต้น ไม่ใช่ผลงานสำเร็จรูป ทุกหน้าจึงมีหัวข้อ
+              "จุดที่ควรต่อยอดให้เป็นของตัวเอง" เพราะสิ่งที่กรรมการให้คะแนนคือส่วนที่คุณคิดเพิ่ม
             </p>
+            <nav className="flex flex-col gap-1 text-sm sm:ml-auto">
+              {NAV.map((n) => (
+                <Link key={n.href} href={n.href} className="text-muted hover:text-brand-deep">
+                  {n.label}
+                </Link>
+              ))}
+            </nav>
           </div>
         </footer>
       </body>

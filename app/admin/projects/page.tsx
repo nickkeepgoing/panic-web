@@ -9,7 +9,7 @@ const STATUS_TH: Record<string, string> = {
 };
 
 export default async function AdminProjects() {
-  const { data } = await (await serverClient())
+  const { data } = await serverClient()
     .from('projects')
     .select('id, title, status, difficulty, updated_at')
     .order('updated_at', { ascending: false })

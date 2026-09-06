@@ -15,7 +15,7 @@ function slugify(input: string) {
 
 export async function createProject(formData: FormData) {
   if (!(await isAdmin())) throw new Error('ไม่มีสิทธิ์');
-  const sb = await serverClient();
+  const sb = serverClient();
 
   const title = String(formData.get('title') ?? '').trim();
   if (!title) throw new Error('ต้องมีชื่อโครงงาน');
@@ -54,7 +54,7 @@ export async function setProjectStatus(formData: FormData) {
   const id = String(formData.get('id'));
   const status = String(formData.get('status'));
 
-  await (await serverClient()).from('projects').update({
+  await serverClient().from('projects').update({
     status,
     published_at: status === 'published' ? new Date().toISOString() : null,
     reviewed_at: new Date().toISOString(),
@@ -71,7 +71,7 @@ export async function createCompetition(formData: FormData) {
   const closeAt = String(formData.get('close_at') ?? '');
   if (!name || !closeAt) throw new Error('ต้องมีชื่อกิจกรรมและวันปิดรับ');
 
-  const sb = await serverClient();
+  const sb = serverClient();
   const { data, error } = await sb.from('competitions').insert({
     slug: slugify(name),
     name,
@@ -94,5 +94,4 @@ export async function createCompetition(formData: FormData) {
 
   revalidatePath('/admin/competitions');
   revalidatePath('/calendar');
-  redirect('/admin/competitions');
 }

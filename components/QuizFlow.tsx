@@ -8,6 +8,9 @@ import type { Project } from '@/lib/types';
 
 type Result = { id: string; slug: string; title: string; summary: string; reason: string };
 
+// เรียงสีตามอันดับความสนใจ ให้เห็นลำดับได้จากสีโดยไม่ต้องอ่านเปอร์เซ็นต์
+const BAR_COLORS = ['bg-brand', 'bg-sci', 'bg-tech', 'bg-envi', 'bg-engr'];
+
 export function QuizFlow({ projects }: { projects: Project[] }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswers>({});
@@ -56,7 +59,7 @@ export function QuizFlow({ projects }: { projects: Project[] }) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-2xl font-semibold text-ink">{question.question}</h1>
+        <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">{question.question}</h1>
         {question.helper && <p className="text-sm text-muted">{question.helper}</p>}
       </div>
 
@@ -69,7 +72,9 @@ export function QuizFlow({ projects }: { projects: Project[] }) {
               type="button"
               onClick={() => choose(o.id)}
               className={`rounded-card border p-4 text-left ${
-                selected ? 'border-brand bg-brand-light' : 'border-line bg-surface hover:border-brand'
+                selected
+                  ? 'border-brand bg-brand-light font-medium'
+                  : 'border-line bg-surface hover:border-brand hover:shadow-lift'
               }`}
             >
               <span className="text-ink">{o.label}</span>
@@ -156,13 +161,16 @@ function QuizResult({
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-4">
-        <h1 className="font-display text-3xl font-semibold text-ink">โปรไฟล์ความสนใจของคุณ</h1>
+        <h1 className="font-display text-3xl font-bold text-ink">โปรไฟล์ความสนใจของคุณ</h1>
         <ul className="flex flex-col gap-3">
-          {profile.tags.map((t) => (
+          {profile.tags.map((t, i) => (
             <li key={t.slug} className="flex items-center gap-4">
               <span className="w-40 shrink-0 text-sm text-ink">{t.label}</span>
-              <span className="h-2 flex-1 overflow-hidden rounded-full bg-brand-light">
-                <span className="block h-full rounded-full bg-brand" style={{ width: `${t.score}%` }} />
+              <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-ground">
+                <span
+                  className={`block h-full rounded-full ${BAR_COLORS[i % BAR_COLORS.length]}`}
+                  style={{ width: `${t.score}%` }}
+                />
               </span>
               <span className="w-12 text-right text-sm text-muted">{t.score}%</span>
             </li>
@@ -176,7 +184,7 @@ function QuizResult({
 
       <section className="flex flex-col gap-4">
         <div className="flex items-baseline gap-3">
-          <h2 className="font-display text-2xl font-medium text-ink">โครงงานที่เหมาะกับคุณ</h2>
+          <h2 className="font-display text-2xl font-bold text-ink">โครงงานที่เหมาะกับคุณ</h2>
           {loading && <span className="text-sm text-muted">กำลังเขียนเหตุผลให้แต่ละข้อ…</span>}
         </div>
 
@@ -198,7 +206,7 @@ function QuizResult({
                   {m.title}
                 </Link>
                 <p className="mt-1 text-sm text-muted">{m.summary}</p>
-                <p className="mt-3 rounded-lg bg-brand-light/50 px-3 py-2 text-sm text-brand-deep">
+                <p className="mt-3 rounded-lg border-l-4 border-brand bg-brand-light/60 px-4 py-3 text-sm text-brand-deep">
                   ทำไมเหมาะกับคุณ: {m.reason}
                 </p>
               </li>

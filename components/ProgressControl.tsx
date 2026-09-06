@@ -8,12 +8,12 @@ export function ProgressControl({ projectId, initial }: { projectId: string; ini
 
   async function commit(value: number) {
     setSaved(false);
-    const res = await fetch('/api/save', {
+    await fetch('/api/save', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ projectId, action: 'progress', percent: value }),
     });
-    if (res.ok) setSaved(true);
+    setSaved(true);
   }
 
   return (
