@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+
+body {
+  background: #F7EAF1;
+  color: #2A1B24;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ภาษาไทยวางสระและวรรณยุกต์บนล่างบรรทัด จึงต้องการ line-height สูงกว่าปกติ
+   และห้ามบีบ letter-spacing */
+h1, h2, h3 { line-height: 1.4; letter-spacing: 0; }
+
+:focus-visible {
+  outline: 2px solid #C22367;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
