@@ -19,6 +19,15 @@ function parseSteps(raw: string) {
     .map((line, i) => ({ step: i + 1, title: line.split(' — ')[0] ?? line, detail: line.split(' — ')[1] ?? '' }));
 }
 
+function parseMaterials(raw: string) {
+  return raw
+    .split('\n').map((l) => l.trim()).filter(Boolean)
+    .map((line) => {
+      const parts = line.split('|').map((p) => p.trim());
+      return { name: parts[0] ?? '', qty: parts[1] ?? '', est_price: Number(parts[2] ?? 0) };
+    });
+}
+
 export async function createProject(formData: FormData) {
   if (!(await isAdmin())) throw new Error('ไม่มีสิทธิ์');
   const sb = serverClient();
@@ -42,6 +51,7 @@ export async function createProject(formData: FormData) {
     extension_md: String(formData.get('extension_md') ?? ''),
     cover_url: String(formData.get('cover_url') ?? '') || null,
     steps: parseSteps(String(formData.get('steps') ?? '')),
+    materials: parseMaterials(String(formData.get('materials') ?? '')),
     status: formData.get('publish') ? 'published' : 'draft',
     published_at: formData.get('publish') ? new Date().toISOString() : null,
   });
@@ -75,6 +85,7 @@ export async function updateProject(formData: FormData) {
     extension_md: String(formData.get('extension_md') ?? ''),
     cover_url: String(formData.get('cover_url') ?? '') || null,
     steps: parseSteps(String(formData.get('steps') ?? '')),
+    materials: parseMaterials(String(formData.get('materials') ?? '')),
     status: formData.get('publish') ? 'published' : 'draft',
     published_at: formData.get('publish') ? new Date().toISOString() : undefined,
   }).eq('id', id);

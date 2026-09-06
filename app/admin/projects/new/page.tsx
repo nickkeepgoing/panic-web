@@ -1,5 +1,6 @@
 import { serverClient } from '@/lib/supabase/server';
 import { createProject } from '../../actions';
+import { ImageUrlInput } from '@/components/ImageUrlInput';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,9 +20,10 @@ export default async function NewProject() {
           <textarea name="summary" rows={2} className={input} placeholder="อธิบายใน 1–2 บรรทัดว่าโครงงานนี้ทำอะไร" />
         </Field>
 
-        <Field label="ลิงก์รูปปก (URL รูปภาพ)">
-          <input name="cover_url" type="url" className={input} placeholder="https://..." />
-        </Field>
+        <div className="flex flex-col gap-1.5 text-sm">
+          <span className="text-muted">รูปปก (วางลิงก์รูปภาพ — จะแสดงตัวอย่างทันที)</span>
+          <ImageUrlInput name="cover_url" />
+        </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="หมวดหมู่">
@@ -50,8 +52,14 @@ export default async function NewProject() {
         <Field label="เอาไว้ทำอะไร"><textarea name="purpose_md" rows={3} className={input} /></Field>
         <Field label="ยากไหม"><textarea name="difficulty_md" rows={3} className={input} /></Field>
 
-        <Field label="วิธีทำ — บรรทัดละขั้น ใช้รูปแบบ หัวข้อ — รายละเอียด">
-          <textarea name="steps" rows={5} className={input} placeholder={'ทดลองอ่านค่าเซ็นเซอร์ — วัดระยะในถังน้ำ จดค่าที่ได้\nแปลงค่าเป็นเซนติเมตร — เขียนโปรแกรมแปลงค่าดิบ'} />
+        <Field label="วิธีทำ — บรรทัดละขั้น รูปแบบ: หัวข้อ — รายละเอียด">
+          <textarea name="steps" rows={5} className={input}
+            placeholder={'ทดลองอ่านค่าเซ็นเซอร์ — วัดระยะในถังน้ำ จดค่าที่ได้\nแปลงค่าเป็นเซนติเมตร — เขียนโปรแกรมแปลงค่าดิบ'} />
+        </Field>
+
+        <Field label="อุปกรณ์ที่ใช้ — บรรทัดละชิ้น รูปแบบ: ชื่ออุปกรณ์ | จำนวน | ราคา">
+          <textarea name="materials" rows={4} className={input}
+            placeholder={'บอร์ด ESP32 | 1 ตัว | 250\nเซ็นเซอร์วัดระยะกันน้ำ | 1 ตัว | 350\nกล่องกันน้ำ | 1 ใบ | 120'} />
         </Field>
 
         <Field label="จุดที่ควรต่อยอดให้เป็นของตัวเอง (บังคับกรอก)">

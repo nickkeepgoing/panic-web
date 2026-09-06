@@ -1,12 +1,18 @@
 import { notFound } from 'next/navigation';
 import { serverClient } from '@/lib/supabase/server';
 import { updateProject } from '../../../actions';
+import { ImageUrlInput } from '@/components/ImageUrlInput';
 
 export const dynamic = 'force-dynamic';
 
 function stepsToText(steps: { step: number; title: string; detail: string }[] | null): string {
   if (!steps || steps.length === 0) return '';
   return steps.map((s) => s.detail ? `${s.title} — ${s.detail}` : s.title).join('\n');
+}
+
+function materialsToText(materials: { name: string; qty: string; est_price: number }[] | null): string {
+  if (!materials || materials.length === 0) return '';
+  return materials.map((m) => `${m.name} | ${m.qty} | ${m.est_price}`).join('\n');
 }
 
 export default async function EditProject({ params }: { params: { id: string } }) {
@@ -33,9 +39,10 @@ export default async function EditProject({ params }: { params: { id: string } }
           <textarea name="summary" rows={2} defaultValue={project.summary ?? ''} className={input} />
         </Field>
 
-        <Field label="ลิงก์รูปปก (URL รูปภาพ)">
-          <input name="cover_url" type="url" defaultValue={project.cover_url ?? ''} className={input} placeholder="https://..." />
-        </Field>
+        <div className="flex flex-col gap-1.5 text-sm">
+          <span className="text-muted">รูปปก (วางลิงก์รูปภาพ — จะแสดงตัวอย่างทันที)</span>
+          <ImageUrlInput name="cover_url" defaultValue={project.cover_url ?? ''} />
+        </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="หมวดหมู่">
@@ -72,12 +79,19 @@ export default async function EditProject({ params }: { params: { id: string } }
         <Field label="เอาไว้ทำอะไร">
           <textarea name="purpose_md" rows={3} defaultValue={project.purpose_md ?? ''} className={input} />
         </Field>
+
         <Field label="ยากไหม">
           <textarea name="difficulty_md" rows={3} defaultValue={project.difficulty_md ?? ''} className={input} />
         </Field>
 
-        <Field label="วิธีทำ — บรรทัดละขั้น ใช้รูปแบบ หัวข้อ — รายละเอียด">
-          <textarea name="steps" rows={6} defaultValue={stepsToText(project.steps)} className={input} />
+        <Field label="วิธีทำ — บรรทัดละขั้น รูปแบบ: หัวข้อ — รายละเอียด">
+          <textarea name="steps" rows={6} defaultValue={stepsToText(project.steps)} className={input}
+            placeholder={'ทดลองอ่านค่าเซ็นเซอร์ — วัดระยะในถังน้ำ จดค่าที่ได้\nแปลงค่าเป็นเซนติเมตร — เขียนโปรแกรมแปลงค่าดิบ'} />
+        </Field>
+
+        <Field label="อุปกรณ์ที่ใช้ — บรรทัดละชิ้น รูปแบบ: ชื่ออุปกรณ์ | จำนวน | ราคา">
+          <textarea name="materials" rows={5} defaultValue={materialsToText(project.materials)} className={input}
+            placeholder={'บอร์ด ESP32 | 1 ตัว | 250\nเซ็นเซอร์วัดระยะกันน้ำ | 1 ตัว | 350\nกล่องกันน้ำ | 1 ใบ | 120'} />
         </Field>
 
         <Field label="จุดที่ควรต่อยอดให้เป็นของตัวเอง">
