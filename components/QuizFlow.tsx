@@ -8,15 +8,51 @@ import type { Project } from '@/lib/types';
 
 type Result = { id: string; slug: string; title: string; summary: string; reason: string };
 
-// เรียงสีตามอันดับความสนใจ ให้เห็นลำดับได้จากสีโดยไม่ต้องอ่านเปอร์เซ็นต์
 const BAR_COLORS = ['bg-brand', 'bg-sci', 'bg-tech', 'bg-envi', 'bg-engr'];
 
 export function QuizFlow({ projects }: { projects: Project[] }) {
+  const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
 
+  // --- Start screen ---
+  if (!started) {
+    return (
+      <div className="flex flex-col items-center gap-8 py-12 text-center">
+        <div className="flex h-20 w-20 items-end gap-1.5 rounded-2xl bg-brand p-4">
+          {[40, 55, 70, 55, 40].map((h, i) => (
+            <div key={i} className="flex-1 rounded-sm bg-white/80" style={{ height: `${h}%` }} />
+          ))}
+        </div>
+        <div className="flex flex-col gap-3">
+          <h1 className="font-display text-4xl font-bold text-ink">ค้นหาโครงงานที่ใช่</h1>
+          <p className="max-w-sm text-muted">
+            ตอบ {QUIZ.length} ข้อสั้น ๆ ระบบจะเลือกโครงงานจาก {projects.length} เรื่อง
+            ที่เหมาะกับความสนใจและข้อจำกัดของคุณจริง ๆ
+          </p>
+        </div>
+        <div className="flex flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setStarted(true)}
+            className="rounded-lg bg-brand px-10 py-3.5 font-display text-lg font-semibold text-white hover:bg-brand-deep"
+          >
+            เริ่มทำแบบทดสอบ
+          </button>
+          <p className="text-sm text-muted">ใช้เวลาประมาณ 2 นาที · ดูฟรีไม่ต้องเข้าสู่ระบบ</p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-3 text-sm text-muted">
+          {['งบประมาณที่มี', 'เวลาที่มี', 'ความสนใจ', 'ระดับชั้น'].map((tag) => (
+            <span key={tag} className="rounded-full border border-line bg-surface px-3 py-1">{tag}</span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // --- Quiz screen ---
   const question = QUIZ[step];
   const progress = Math.round(((step + (done ? 1 : 0)) / QUIZ.length) * 100);
 
@@ -41,7 +77,7 @@ export function QuizFlow({ projects }: { projects: Project[] }) {
       <QuizResult
         answers={answers}
         projects={projects}
-        onRestart={() => { setAnswers({}); setStep(0); setDone(false); }}
+        onRestart={() => { setAnswers({}); setStep(0); setDone(false); setStarted(false); }}
       />
     );
   }
@@ -148,14 +184,12 @@ function QuizResult({
         setProfile(data.profile);
         setMatches(data.matches);
       } catch {
-        // เซิร์ฟเวอร์ล่มก็ยังเห็นผลลัพธ์ที่คำนวณในเครื่อง
+        // fall back to local results
       } finally {
         if (alive) setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [answers]);
 
   return (
@@ -185,24 +219,19 @@ function QuizResult({
       <section className="flex flex-col gap-4">
         <div className="flex items-baseline gap-3">
           <h2 className="font-display text-2xl font-bold text-ink">โครงงานที่เหมาะกับคุณ</h2>
-          {loading && <span className="text-sm text-muted">กำลังเขียนเหตุผลให้แต่ละข้อ…</span>}
+          {loading && <span className="text-sm text-muted">กำลังเขียนเหตุผล…</span>}
         </div>
 
         {matches.length === 0 ? (
           <div className="rounded-card border border-line bg-surface p-6">
             <p className="text-ink">ยังไม่มีโครงงานที่ผ่านเงื่อนไขงบและเวลาที่ตอบไว้</p>
-            <p className="mt-1 text-sm text-muted">
-              ลองทำแบบทดสอบใหม่แล้วขยับงบหรือเวลาขึ้นอีกนิด หรือไล่ดูคลังทั้งหมดเองก็ได้
-            </p>
+            <p className="mt-1 text-sm text-muted">ลองทำแบบทดสอบใหม่แล้วขยับงบหรือเวลาขึ้นอีกนิด</p>
           </div>
         ) : (
           <ol className="flex flex-col gap-4">
             {matches.map((m) => (
               <li key={m.id} className="rounded-card border border-line bg-surface p-5">
-                <Link
-                  href={`/projects/${m.slug}`}
-                  className="font-display text-lg font-medium text-ink hover:text-brand-deep"
-                >
+                <Link href={`/projects/${m.slug}`} className="font-display text-lg font-medium text-ink hover:text-brand-deep">
                   {m.title}
                 </Link>
                 <p className="mt-1 text-sm text-muted">{m.summary}</p>

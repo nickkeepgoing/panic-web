@@ -38,11 +38,17 @@ export default async function AdminProjects() {
               <span className="rounded-full bg-brand-light px-2.5 py-0.5 text-xs text-brand-deep">
                 {STATUS_TH[p.status] ?? p.status}
               </span>
+              <Link
+                href={`/admin/projects/${p.id}/edit`}
+                className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:border-brand hover:text-brand-deep"
+              >
+                แก้ไข
+              </Link>
               <form action={setProjectStatus}>
                 <input type="hidden" name="id" value={p.id} />
                 <input type="hidden" name="status" value={p.status === 'published' ? 'draft' : 'published'} />
                 <button className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:border-brand hover:text-brand-deep">
-                  {p.status === 'published' ? 'ถอนออกเป็นร่าง' : 'เผยแพร่'}
+                  {p.status === 'published' ? 'ถอนออก' : 'เผยแพร่'}
                 </button>
               </form>
             </li>

@@ -19,6 +19,10 @@ export default async function NewProject() {
           <textarea name="summary" rows={2} className={input} placeholder="อธิบายใน 1–2 บรรทัดว่าโครงงานนี้ทำอะไร" />
         </Field>
 
+        <Field label="ลิงก์รูปปก (URL รูปภาพ)">
+          <input name="cover_url" type="url" className={input} placeholder="https://..." />
+        </Field>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="หมวดหมู่">
             <select name="category_id" className={input}>

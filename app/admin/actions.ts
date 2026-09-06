@@ -13,16 +13,18 @@ function slugify(input: string) {
     .slice(0, 60) || `p-${Date.now()}`;
 }
 
+function parseSteps(raw: string) {
+  return raw
+    .split('\n').map((l) => l.trim()).filter(Boolean)
+    .map((line, i) => ({ step: i + 1, title: line.split(' — ')[0] ?? line, detail: line.split(' — ')[1] ?? '' }));
+}
+
 export async function createProject(formData: FormData) {
   if (!(await isAdmin())) throw new Error('ไม่มีสิทธิ์');
   const sb = serverClient();
 
   const title = String(formData.get('title') ?? '').trim();
   if (!title) throw new Error('ต้องมีชื่อโครงงาน');
-
-  const steps = String(formData.get('steps') ?? '')
-    .split('\n').map((l) => l.trim()).filter(Boolean)
-    .map((line, i) => ({ step: i + 1, title: line.split(' — ')[0] ?? line, detail: line.split(' — ')[1] ?? '' }));
 
   const { error } = await sb.from('projects').insert({
     slug: slugify(title),
@@ -38,7 +40,8 @@ export async function createProject(formData: FormData) {
     purpose_md: String(formData.get('purpose_md') ?? ''),
     difficulty_md: String(formData.get('difficulty_md') ?? ''),
     extension_md: String(formData.get('extension_md') ?? ''),
-    steps,
+    cover_url: String(formData.get('cover_url') ?? '') || null,
+    steps: parseSteps(String(formData.get('steps') ?? '')),
     status: formData.get('publish') ? 'published' : 'draft',
     published_at: formData.get('publish') ? new Date().toISOString() : null,
   });
@@ -46,6 +49,40 @@ export async function createProject(formData: FormData) {
 
   revalidatePath('/admin/projects');
   revalidatePath('/projects');
+  redirect('/admin/projects');
+}
+
+export async function updateProject(formData: FormData) {
+  if (!(await isAdmin())) throw new Error('ไม่มีสิทธิ์');
+  const sb = serverClient();
+  const id = String(formData.get('id'));
+
+  const title = String(formData.get('title') ?? '').trim();
+  if (!title) throw new Error('ต้องมีชื่อโครงงาน');
+
+  const { error } = await sb.from('projects').update({
+    title,
+    summary: String(formData.get('summary') ?? ''),
+    category_id: Number(formData.get('category_id')),
+    difficulty: String(formData.get('difficulty') ?? 'easy'),
+    budget_min: Number(formData.get('budget_min') ?? 0),
+    budget_max: Number(formData.get('budget_max') ?? 0),
+    duration_weeks: Number(formData.get('duration_weeks') ?? 1),
+    grade_min: Number(formData.get('grade_min') ?? 7),
+    grade_max: Number(formData.get('grade_max') ?? 12),
+    purpose_md: String(formData.get('purpose_md') ?? ''),
+    difficulty_md: String(formData.get('difficulty_md') ?? ''),
+    extension_md: String(formData.get('extension_md') ?? ''),
+    cover_url: String(formData.get('cover_url') ?? '') || null,
+    steps: parseSteps(String(formData.get('steps') ?? '')),
+    status: formData.get('publish') ? 'published' : 'draft',
+    published_at: formData.get('publish') ? new Date().toISOString() : undefined,
+  }).eq('id', id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/admin/projects');
+  revalidatePath('/projects');
+  revalidatePath(`/projects/${id}`);
   redirect('/admin/projects');
 }
 
@@ -77,6 +114,7 @@ export async function createCompetition(formData: FormData) {
     name,
     organizer: String(formData.get('organizer') ?? ''),
     source_url: String(formData.get('source_url') ?? ''),
+    cover_url: String(formData.get('cover_url') ?? '') || null,
     open_at: String(formData.get('open_at') ?? '') || null,
     close_at: closeAt,
     event_at: String(formData.get('event_at') ?? '') || null,
@@ -84,7 +122,6 @@ export async function createCompetition(formData: FormData) {
   }).select('id').single();
   if (error) throw new Error(error.message);
 
-  // ลงหมุดปฏิทินให้อัตโนมัติ จะได้ไม่ต้องกรอกซ้ำสองที่
   const events = [
     formData.get('open_at') && { competition_id: data.id, kind: 'open', event_date: String(formData.get('open_at')) },
     { competition_id: data.id, kind: 'close', event_date: closeAt },

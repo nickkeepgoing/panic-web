@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { browserClient } from '@/lib/supabase/browser';
 
 type Mode = 'signin' | 'signup';
 
 export function AuthForm({ next }: { next?: string }) {
-  const router = useRouter();
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,14 +45,13 @@ export function AuthForm({ next }: { next?: string }) {
         );
         return;
       }
-      // ถ้าปิด Confirm email ไว้ จะได้ session มาทันที เข้าใช้งานได้เลยไม่ต้องรออีเมล
       if (!data.session) {
         setNotice('สมัครแล้ว รอยืนยันทางอีเมลก่อนจึงจะเข้าใช้งานได้');
         return;
       }
       await sb.from('profiles').upsert({ id: data.session.user.id, display_name: displayName.trim() });
-      router.push(next ?? '/me');
-      router.refresh();
+      // Hard reload so AuthNav and all server components reflect new session
+      window.location.href = next ?? '/me';
       return;
     }
 
@@ -64,8 +61,7 @@ export function AuthForm({ next }: { next?: string }) {
       setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       return;
     }
-    router.push(next ?? '/me');
-    router.refresh();
+    window.location.href = next ?? '/me';
   }
 
   const field = 'w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-ink outline-none focus:border-brand';

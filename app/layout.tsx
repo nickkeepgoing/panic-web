@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Thai, Bai_Jamjuree } from 'next/font/google';
 import Link from 'next/link';
 import { AuthNav } from '@/components/AuthNav';
+import { NavMenu } from '@/components/NavMenu';
 import './globals.css';
 
 const body = IBM_Plex_Sans_Thai({
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   {n.label}
                 </Link>
               ))}
+              <NavMenu />
               <AuthNav />
             </nav>
           </div>
@@ -67,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 sm:flex-row sm:gap-10">
             <p className="max-w-md text-sm text-muted">
               โครงงานทุกเรื่องที่นี่เป็นไอเดียตั้งต้น ไม่ใช่ผลงานสำเร็จรูป ทุกหน้าจึงมีหัวข้อ
-              "จุดที่ควรต่อยอดให้เป็นของตัวเอง" เพราะสิ่งที่กรรมการให้คะแนนคือส่วนที่คุณคิดเพิ่ม
+              &ldquo;จุดที่ควรต่อยอดให้เป็นของตัวเอง&rdquo; เพราะสิ่งที่กรรมการให้คะแนนคือส่วนที่คุณคิดเพิ่ม
             </p>
             <nav className="flex flex-col gap-1 text-sm sm:ml-auto">
               {NAV.map((n) => (

@@ -13,6 +13,8 @@ export type Project = {
   grade_min: number;
   grade_max: number;
   tags: string[];
+  cover_url?: string;
+  gallery_urls?: string[];
   purpose_md?: string;
   difficulty_md?: string;
   steps?: { step: number; title: string; detail: string }[];
@@ -27,6 +29,7 @@ export type Competition = {
   organizer: string;
   close_at: string;
   source_url: string;
+  cover_url?: string;
 };
 
 export const DIFFICULTY_TH: Record<Difficulty, string> = {

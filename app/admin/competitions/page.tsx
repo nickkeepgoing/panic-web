@@ -56,6 +56,10 @@ export default async function AdminCompetitions() {
             <span className="text-muted">ลิงก์ประกาศต้นทาง</span>
             <input name="source_url" type="url" className={input} placeholder="https://" />
           </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="text-muted">รูปโปสเตอร์ (URL รูปภาพ)</span>
+            <input name="cover_url" type="url" className={input} placeholder="https://..." />
+          </label>
           <div className="grid gap-4 sm:grid-cols-3">
             <label className="flex flex-col gap-1.5 text-sm">
               <span className="text-muted">วันเปิดรับ</span>
@@ -71,7 +75,7 @@ export default async function AdminCompetitions() {
             </label>
           </div>
           <p className="text-xs text-muted">
-            กรอกวันครบแล้วระบบจะลงหมุดปฏิทินให้เองทั้งสามวัน ไม่ต้องกรอกซ้ำอีกที่
+            กรอกวันครบแล้วระบบจะลงหมุดปฏิทินให้เองทั้งสามวัน
           </p>
           <button className="w-fit rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-deep">
             บันทึกและเผยแพร่
