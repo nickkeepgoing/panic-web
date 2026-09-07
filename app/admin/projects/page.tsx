@@ -21,7 +21,13 @@ export default async function AdminProjects() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <h1 className="font-display text-2xl font-semibold text-ink">คลังโครงงาน</h1>
-        <Link href="/admin/projects/new" className="ml-auto rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-deep">
+        <Link
+          href="/admin/projects/import"
+          className="ml-auto rounded-lg border border-brand px-4 py-2 text-sm font-medium text-brand-deep hover:bg-brand-light"
+        >
+          นำเข้าจาก CSV
+        </Link>
+        <Link href="/admin/projects/new" className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-deep">
           เพิ่มโครงงาน
         </Link>
       </div>
