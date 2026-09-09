@@ -1,17 +1,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getProject, getProjects } from '@/lib/data';
+import { getProject } from '@/lib/data';
 import { DIFFICULTY_TH, budgetLabel, gradeLabel } from '@/lib/types';
 import { categoryStyle } from '@/lib/categories';
 import { SaveButton } from '@/components/SaveButton';
 
-export const revalidate = 60;
-
-export async function generateStaticParams() {
-  const projects = await getProjects();
-  return projects.map((p) => ({ slug: p.slug }));
-}
+// ดึงข้อมูลสดจากฐานข้อมูลทุกครั้ง ไม่ล็อกรายชื่อ slug ไว้ตั้งแต่ตอน build
+// มิฉะนั้นโครงงานที่แอดมินเพิ่มใหม่ (ยังไม่มีตอน build) จะขึ้น 404
+export const dynamic = 'force-dynamic';
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const project = await getProject(params.slug);
