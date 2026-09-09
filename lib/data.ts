@@ -222,24 +222,41 @@ export async function getProject(slug: string): Promise<Project | null> {
 
   // เลือกเฉพาะคอลัมน์ที่หน้าโครงงานใช้จริง — ห้ามใช้ select('*') เพราะจะดึงคอลัมน์
   // embedding (vector 768 มิติ) กับ search_text มาด้วย ทำให้ payload ใหญ่เกินจำเป็น
-  const { data, error } = await anonClient()
+  const cols =
+    'id, slug, title, summary, category_id, difficulty, budget_min, budget_max, ' +
+    'duration_weeks, grade_min, grade_max, purpose_md, difficulty_md, steps, ' +
+    'materials, extension_md, cover_url, status, categories(name_th)';
+  const sb = anonClient();
+  const { data } = await sb
     .from('projects')
-    .select(
-      'id, slug, title, summary, category_id, difficulty, budget_min, budget_max, ' +
-      'duration_weeks, grade_min, grade_max, purpose_md, difficulty_md, steps, ' +
-      'materials, extension_md, cover_url, status, categories(name_th)',
-    )
+    .select(cols)
     .in('slug', Array.from(candidates))
     .limit(1)
     .maybeSingle();
-  if (error || !data) return SAMPLE_PROJECTS.find((p) => matchSlug(p.slug, slug)) ?? null;
-  return mapProject(data);
+  if (data) return mapProject(data);
+
+  // Fallback: slug ใน DB อาจถูกเก็บเป็นรูป Unicode ที่ไม่ตรงกับที่ client ส่งมาเป๊ะ ๆ
+  // (เช่นลำดับสระ/วรรณยุกต์ที่ไม่ใช่ NFC) — ดึง slug ทั้งหมดมาเทียบแบบ normalize
+  // แล้วค่อยดึงแถวที่ตรงจริง จำนวนโครงงานไม่มากจึงไม่หนัก และวิ่งเฉพาะตอนหาไม่เจอ
+  const wanted = new Set(Array.from(candidates).map(normNFC));
+  const { data: rows } = await sb.from('projects').select('slug');
+  const hit = (rows ?? []).find((r) => wanted.has(normNFC(r.slug as string)));
+  if (hit) {
+    const { data: exact } = await sb.from('projects').select(cols).eq('slug', hit.slug).maybeSingle();
+    if (exact) return mapProject(exact);
+  }
+
+  return SAMPLE_PROJECTS.find((p) => matchSlug(p.slug, slug)) ?? null;
+}
+
+function normNFC(s: string) {
+  try { return s.normalize('NFC'); } catch { return s; }
 }
 
 /** เทียบ slug โดยเผื่อว่าค่าที่รับเข้ามายัง percent-encoded อยู่ */
 function matchSlug(stored: string, incoming: string) {
   if (stored === incoming) return true;
-  try { return stored === decodeURIComponent(incoming); } catch { return false; }
+  try { return normNFC(stored) === normNFC(decodeURIComponent(incoming)); } catch { return false; }
 }
 
 export async function getCompetitions(): Promise<Competition[]> {
