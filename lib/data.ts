@@ -206,11 +206,18 @@ export async function getProjects(): Promise<Project[]> {
 
 export async function getProject(slug: string): Promise<Project | null> {
   if (!hasSupabase) return SAMPLE_PROJECTS.find((p) => p.slug === slug) ?? null;
+  // เลือกเฉพาะคอลัมน์ที่หน้าโครงงานใช้จริง — ห้ามใช้ select('*') เพราะจะดึงคอลัมน์
+  // embedding (vector 768 มิติ) กับ search_text มาด้วย ทำให้ payload ใหญ่เกินจำเป็น
+  // และ PostgREST อาจ serialize ชนิด vector ไม่ได้จน query พังทั้งแถว
   const { data, error } = await anonClient()
     .from('projects')
-    .select('*, categories(name_th)')
+    .select(
+      'id, slug, title, summary, category_id, difficulty, budget_min, budget_max, ' +
+      'duration_weeks, grade_min, grade_max, purpose_md, difficulty_md, steps, ' +
+      'materials, extension_md, cover_url, status, categories(name_th)',
+    )
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
   if (error || !data) return SAMPLE_PROJECTS.find((p) => p.slug === slug) ?? null;
   return mapProject(data);
 }
