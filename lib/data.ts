@@ -205,10 +205,15 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getProject(slug: string): Promise<Project | null> {
-  if (!hasSupabase) return SAMPLE_PROJECTS.find((p) => p.slug === slug) ?? null;
+  if (!hasSupabase) return SAMPLE_PROJECTS.find((p) => matchSlug(p.slug, slug)) ?? null;
+
+  // Next/Vercel อาจส่ง params.slug ของอักษรไทยมาแบบ percent-encoded (ยังไม่ decode)
+  // ทำให้เทียบกับ slug ใน DB ไม่ตรง จึงลองทั้งค่าเดิมและค่าที่ decode แล้ว
+  const candidates = new Set([slug]);
+  try { candidates.add(decodeURIComponent(slug)); } catch { /* decode ไม่ได้ก็ใช้ค่าเดิม */ }
+
   // เลือกเฉพาะคอลัมน์ที่หน้าโครงงานใช้จริง — ห้ามใช้ select('*') เพราะจะดึงคอลัมน์
   // embedding (vector 768 มิติ) กับ search_text มาด้วย ทำให้ payload ใหญ่เกินจำเป็น
-  // และ PostgREST อาจ serialize ชนิด vector ไม่ได้จน query พังทั้งแถว
   const { data, error } = await anonClient()
     .from('projects')
     .select(
@@ -216,10 +221,17 @@ export async function getProject(slug: string): Promise<Project | null> {
       'duration_weeks, grade_min, grade_max, purpose_md, difficulty_md, steps, ' +
       'materials, extension_md, cover_url, status, categories(name_th)',
     )
-    .eq('slug', slug)
+    .in('slug', Array.from(candidates))
+    .limit(1)
     .maybeSingle();
-  if (error || !data) return SAMPLE_PROJECTS.find((p) => p.slug === slug) ?? null;
+  if (error || !data) return SAMPLE_PROJECTS.find((p) => matchSlug(p.slug, slug)) ?? null;
   return mapProject(data);
+}
+
+/** เทียบ slug โดยเผื่อว่าค่าที่รับเข้ามายัง percent-encoded อยู่ */
+function matchSlug(stored: string, incoming: string) {
+  if (stored === incoming) return true;
+  try { return stored === decodeURIComponent(incoming); } catch { return false; }
 }
 
 export async function getCompetitions(): Promise<Competition[]> {
