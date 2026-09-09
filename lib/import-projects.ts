@@ -37,6 +37,7 @@ const TAG_TH_TO_SLUG: Record<string, TagSlug> = Object.fromEntries(
 
 function slugify(input: string) {
   return input
+    .normalize('NFC') // อักษรไทยต้อง normalize ก่อน ไม่งั้น slug ที่เก็บจะเปิดไม่ได้เมื่อ client normalize URL
     .trim()
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\p{M}]+/gu, '-')

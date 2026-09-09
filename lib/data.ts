@@ -207,10 +207,18 @@ export async function getProjects(): Promise<Project[]> {
 export async function getProject(slug: string): Promise<Project | null> {
   if (!hasSupabase) return SAMPLE_PROJECTS.find((p) => matchSlug(p.slug, slug)) ?? null;
 
-  // Next/Vercel อาจส่ง params.slug ของอักษรไทยมาแบบ percent-encoded (ยังไม่ decode)
-  // ทำให้เทียบกับ slug ใน DB ไม่ตรง จึงลองทั้งค่าเดิมและค่าที่ decode แล้ว
-  const candidates = new Set([slug]);
-  try { candidates.add(decodeURIComponent(slug)); } catch { /* decode ไม่ได้ก็ใช้ค่าเดิม */ }
+  // slug อักษรไทยเจอ 2 ปัญหาตอนเทียบกับ DB:
+  //  1) Next/Vercel อาจส่ง params.slug มาแบบ percent-encoded (ยังไม่ decode)
+  //  2) client บางตัว normalize Unicode ของ path (NFC) ทำให้ลำดับสระ/วรรณยุกต์
+  //     ไม่ตรงกับที่เก็บไว้ จึงลองทั้งรูป decode และทุกฟอร์ม normalization
+  const candidates = new Set<string>();
+  const addForms = (v: string) => {
+    candidates.add(v);
+    try { candidates.add(v.normalize('NFC')); } catch { /* ข้าม */ }
+    try { candidates.add(v.normalize('NFD')); } catch { /* ข้าม */ }
+  };
+  addForms(slug);
+  try { addForms(decodeURIComponent(slug)); } catch { /* decode ไม่ได้ก็ใช้ค่าเดิม */ }
 
   // เลือกเฉพาะคอลัมน์ที่หน้าโครงงานใช้จริง — ห้ามใช้ select('*') เพราะจะดึงคอลัมน์
   // embedding (vector 768 มิติ) กับ search_text มาด้วย ทำให้ payload ใหญ่เกินจำเป็น
