@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { QUIZ, scoreQuiz, type QuizAnswers } from '@/lib/quiz';
 import { recommend, FACTOR_LABELS, type FactorKey, type Recommendation } from '@/lib/recommend';
@@ -15,6 +15,14 @@ export function QuizFlow({ projects }: { projects: Project[] }) {
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const headingRef = useRef<HTMLLegendElement>(null);
+  const helperId = useId();
+
+  // ย้ายโฟกัสไปที่คำถามทุกครั้งที่เปลี่ยนข้อ โปรแกรมอ่านหน้าจอจะได้ประกาศคำถามใหม่เอง
+  // ไม่ใช่ให้ผู้ใช้คลำหาว่าตอนนี้อยู่ข้อไหน
+  useEffect(() => {
+    if (started && !done) headingRef.current?.focus();
+  }, [step, started, done]);
 
   // --- Start screen ---
   if (!started) {
@@ -53,13 +61,12 @@ export function QuizFlow({ projects }: { projects: Project[] }) {
 
   // --- Quiz screen ---
   const question = QUIZ[step];
-  const progress = Math.round(((step + (done ? 1 : 0)) / QUIZ.length) * 100);
 
-  function choose(optionId: string) {
+  // เลือกคำตอบแล้ว "ไม่" เด้งไปข้อถัดไปเอง — ผู้ใช้กดถัดไปเองเพื่อให้คุมจังหวะได้
+  // และเพื่อไม่ให้การเลื่อนเลือกด้วยลูกศรคีย์บอร์ด (radio) กระโดดข้ามข้อ
+  function select(optionId: string) {
     setAnswers((a) => ({ ...a, [question.id]: optionId }));
     setError('');
-    if (step + 1 < QUIZ.length) setStep(step + 1);
-    else setDone(true);
   }
 
   function next() {
@@ -69,6 +76,11 @@ export function QuizFlow({ projects }: { projects: Project[] }) {
     }
     if (step + 1 < QUIZ.length) setStep(step + 1);
     else setDone(true);
+  }
+
+  function back() {
+    setError('');
+    setStep((s) => Math.max(0, s - 1));
   }
 
   if (done) {
@@ -82,63 +94,99 @@ export function QuizFlow({ projects }: { projects: Project[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-baseline justify-between text-sm text-muted">
-          <span>ข้อ {step + 1} จาก {QUIZ.length}</span>
-          <span>{question.kind === 'filter' ? 'ข้อนี้ใช้กรองผลลัพธ์' : 'ข้อนี้วัดความสนใจ'}</span>
+    <form
+      className="flex flex-col gap-6"
+      onSubmit={(e) => { e.preventDefault(); next(); }}
+    >
+      {/* ── ความคืบหน้า: ตัวเลขข้อ + ป้ายชนิดคำถาม + แถบแบ่งช่อง ── */}
+      <div className="flex flex-col gap-2.5">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span className="font-medium text-ink">
+            ข้อ {step + 1} <span className="text-muted">จาก {QUIZ.length}</span>
+          </span>
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+              question.kind === 'filter' ? 'bg-tech/10 text-tech' : 'bg-brand-light text-brand-deep'
+            }`}
+          >
+            {question.kind === 'filter' ? 'ใช้กรองผลลัพธ์' : 'วัดความสนใจ'}
+          </span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-brand-light">
-          <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: `${progress}%` }} />
+        <div
+          role="progressbar"
+          aria-valuemin={1}
+          aria-valuemax={QUIZ.length}
+          aria-valuenow={step + 1}
+          aria-label={`ความคืบหน้า ข้อ ${step + 1} จาก ${QUIZ.length}`}
+          className="flex gap-1.5"
+        >
+          {QUIZ.map((_, i) => (
+            <span
+              key={i}
+              className={`h-1.5 flex-1 rounded-full transition-colors duration-200 ${i <= step ? 'bg-brand' : 'bg-brand-light'}`}
+            />
+          ))}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">{question.question}</h1>
-        {question.helper && <p className="text-sm text-muted">{question.helper}</p>}
-      </div>
+      {/* ── คำถาม + ตัวเลือกเป็น radio จริง คีย์บอร์ดเลื่อนด้วยลูกศรได้ตามมาตรฐาน ── */}
+      <fieldset className="flex flex-col gap-4 border-0 p-0">
+        <legend
+          ref={headingRef}
+          tabIndex={-1}
+          className="font-display text-2xl font-bold text-ink outline-none sm:text-3xl"
+        >
+          {question.question}
+        </legend>
+        {question.helper && <p id={helperId} className="-mt-1 text-sm text-muted">{question.helper}</p>}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {question.options.map((o) => {
-          const selected = answers[question.id] === o.id;
-          return (
-            <button
+        <div className="grid gap-3 sm:grid-cols-2">
+          {question.options.map((o) => (
+            <label
               key={o.id}
-              type="button"
-              onClick={() => choose(o.id)}
-              className={`rounded-card border p-4 text-left ${
-                selected
-                  ? 'border-brand bg-brand-light font-medium'
-                  : 'border-line bg-surface hover:border-brand hover:shadow-lift'
-              }`}
+              className="flex cursor-pointer items-start gap-3 rounded-card border border-line bg-surface p-4 transition-colors duration-200 hover:border-brand hover:bg-brand-light/40 has-[:checked]:border-brand has-[:checked]:bg-brand-light has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand"
             >
+              <input
+                type="radio"
+                name={question.id}
+                value={o.id}
+                checked={answers[question.id] === o.id}
+                onChange={() => select(o.id)}
+                aria-describedby={question.helper ? helperId : undefined}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 border-line transition-colors duration-200 peer-checked:border-brand"
+              >
+                <span className="h-2.5 w-2.5 rounded-full bg-brand opacity-0 transition-opacity duration-200 peer-checked:opacity-100" />
+              </span>
               <span className="text-ink">{o.label}</span>
-            </button>
-          );
-        })}
-      </div>
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
-      {error && <p className="text-sm text-alert">{error}</p>}
+      {error && <p role="alert" className="text-sm font-medium text-alert">{error}</p>}
 
-      <div className="flex gap-3">
+      <div className="flex items-center gap-3">
         {step > 0 && (
           <button
             type="button"
-            onClick={() => setStep(step - 1)}
-            className="rounded-lg border border-line px-4 py-2 text-sm text-muted hover:border-brand"
+            onClick={back}
+            className="inline-flex min-h-[44px] items-center rounded-lg border border-line px-4 text-sm font-medium text-muted transition-colors duration-200 hover:border-brand hover:text-brand-deep"
           >
             ย้อนกลับ
           </button>
         )}
         <button
-          type="button"
-          onClick={next}
-          className="rounded-lg bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand-deep"
+          type="submit"
+          className="ml-auto inline-flex min-h-[44px] items-center rounded-lg bg-brand px-6 text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-deep"
         >
           {step + 1 === QUIZ.length ? 'ดูผลลัพธ์' : 'ข้อถัดไป'}
         </button>
       </div>
-    </div>
+    </form>
   );
 }
 
@@ -201,8 +249,13 @@ function QuizResult({
           )}
 
           <section className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <span aria-hidden>🥇</span>
+            <div className="flex items-center gap-2.5">
+              <span aria-hidden className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-white">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="8" r="5" />
+                  <path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5" />
+                </svg>
+              </span>
               <h2 className="font-display text-2xl font-bold text-ink">โครงงานที่ตรงกับคุณมากที่สุด</h2>
             </div>
             <BestCard rec={best} />
