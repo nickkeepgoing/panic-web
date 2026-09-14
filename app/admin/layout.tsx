@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getProfile } from '@/lib/supabase/server';
 import { hasSupabase } from '@/lib/supabase/config';
+import { AdminNav } from '@/components/AdminNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,16 +33,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex flex-col gap-6">
-      <nav className="flex flex-wrap gap-1 border-b border-line pb-3 text-sm">
-        {ADMIN_NAV.map((n) => (
-          <Link key={n.href} href={n.href} className="rounded-lg px-3 py-1.5 text-muted hover:bg-brand-light hover:text-brand-deep">
-            {n.label}
-          </Link>
-        ))}
-        <span className="ml-auto self-center text-xs text-muted">
-          {profile.display_name} · {profile.role === 'super_admin' ? 'ผู้ดูแลสูงสุด' : 'บรรณาธิการ'}
-        </span>
-      </nav>
+      <AdminNav
+        items={ADMIN_NAV}
+        identity={`${profile.display_name} · ${profile.role === 'super_admin' ? 'ผู้ดูแลสูงสุด' : 'บรรณาธิการ'}`}
+      />
       {children}
     </div>
   );
