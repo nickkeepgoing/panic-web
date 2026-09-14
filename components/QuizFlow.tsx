@@ -207,6 +207,20 @@ function QuizResult({
   const rest = recs.slice(1);
   const weak = !!best && best.overall < 55;
 
+  // ผลลัพธ์คำนวณเสร็จทันที แต่โชว์หน้า "กำลังคำนวณ" สั้น ๆ ให้ผู้ใช้รู้สึกว่าระบบ
+  // กำลังวิเคราะห์คำตอบจริง ผู้ที่ตั้งค่าลดการเคลื่อนไหวไว้จะข้ามไปดูผลทันที
+  const [calculating, setCalculating] = useState(true);
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setCalculating(false);
+      return;
+    }
+    const t = setTimeout(() => setCalculating(false), 1500);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (calculating) return <Calculating count={projects.length} />;
+
   return (
     <div className="flex flex-col gap-10">
       {/* โปรไฟล์ความสนใจ + ข้อจำกัด — โชว์ก่อนเพื่อให้ผู้ใช้เห็นว่าระบบอ่านคำตอบยังไง */}
@@ -289,6 +303,34 @@ function QuizResult({
           ไล่ดูคลังทั้งหมด
         </Link>
       </div>
+    </div>
+  );
+}
+
+/** หน้าจอคั่นระหว่างทำแบบทดสอบเสร็จกับการโชว์ผล — ให้ความรู้สึกว่ากำลังประมวลผล */
+function Calculating({ count }: { count: number }) {
+  return (
+    <div className="flex flex-col items-center gap-8 py-20 text-center" role="status" aria-live="polite">
+      <div className="flex h-24 w-24 items-end justify-center gap-2 rounded-2xl bg-brand p-5">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            className="h-full w-1.5 origin-bottom rounded-sm bg-white/85 animate-[equalize_0.9s_ease-in-out_infinite]"
+            style={{ animationDelay: `${i * 0.12}s` }}
+          />
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">กำลังคำนวณผลลัพธ์</h1>
+        <p className="max-w-xs text-muted">จับคู่คำตอบของคุณกับโครงงานทั้ง {count} เรื่อง แล้วให้คะแนนความเหมาะสม</p>
+      </div>
+
+      <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-brand-light">
+        <div className="h-full rounded-full bg-brand animate-[fillbar_1.5s_ease-out_forwards]" />
+      </div>
+
+      <span className="sr-only">กำลังคำนวณผลลัพธ์…</span>
     </div>
   );
 }

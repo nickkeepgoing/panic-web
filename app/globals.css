@@ -46,6 +46,17 @@ p { text-wrap: pretty; }
   100% { transform: translateX(400%); }
 }
 
+/* หน้าจอ "กำลังคำนวณผล" หลังทำแบบทดสอบเสร็จ — แท่งอีควอไลเซอร์ล้อโลโก้ P.A.N.I.C.
+   กับแถบความคืบหน้าที่ค่อย ๆ เต็ม ให้ความรู้สึกว่าระบบกำลังประมวลผลจริง */
+@keyframes equalize {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+@keyframes fillbar {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
