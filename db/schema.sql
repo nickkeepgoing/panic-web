@@ -185,6 +185,7 @@ create table competitions (
   description_md text,
   source_url     text not null,             -- ลิงก์ประกาศต้นทาง กันข้อมูลเน่า
   apply_url      text,
+  cover_url      text,                       -- รูปโปสเตอร์กิจกรรม แสดงในปฏิทินและหน้าแรก
   open_at        date,
   close_at       date not null,
   event_at       date,

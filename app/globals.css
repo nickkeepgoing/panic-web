@@ -39,6 +39,13 @@ p { text-wrap: pretty; }
   background-size: 26px 26px;
 }
 
+/* แถบโหลดหน้า: แถบเล็กสไลด์ไปมาบนสุดจอระหว่างที่หน้ากำลังดึงข้อมูล
+   ใช้คู่กับ app/loading.tsx ซึ่ง Next แสดงให้เองตอน server component ยังโหลดไม่เสร็จ */
+@keyframes loadingbar {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }

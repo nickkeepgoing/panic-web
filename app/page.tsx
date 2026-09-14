@@ -164,12 +164,18 @@ export default async function HomePage() {
         </ul>
       </section>
 
-      {/* ─── ใกล้ปิดรับสมัคร ───────────────────────────────────────────
-          เดิมเป็นแถวเลื่อนแนวนอนที่ไม่มีปุ่มเลื่อนและเลื่อนด้วยคีย์บอร์ดไม่ได้
-          เปลี่ยนเป็นกริดที่เห็นครบทุกใบในจอเดียว ไม่ต้องเลื่อนแนวนอนเลย */}
+      {/* ─── ข่าวรับสมัคร ───────────────────────────────────────────────
+          โชว์กิจกรรมที่ "เปิดรับอยู่ตอนนี้" เป็นการ์ดโปสเตอร์พร้อมปุ่มสมัคร
+          เรียงจากใกล้ปิดที่สุดก่อน คนที่เข้ามาจึงเห็นของที่ต้องรีบก่อนเสมอ */}
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h2 className="font-display text-2xl font-bold text-ink">ใกล้ปิดรับสมัคร</h2>
+          <div className="flex flex-col gap-1">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-brand-light px-3 py-1 text-sm font-medium text-brand-deep">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
+              เปิดรับสมัครอยู่ตอนนี้
+            </span>
+            <h2 className="font-display text-2xl font-bold text-ink">ข่าวการแข่งขัน</h2>
+          </div>
           <Link href="/calendar" className="text-sm font-medium text-brand-deep hover:underline">
             ดูปฏิทินทั้งหมด
           </Link>

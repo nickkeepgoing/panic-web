@@ -178,10 +178,10 @@ export const SAMPLE_PROJECTS: Project[] = [
 ];
 
 export const SAMPLE_COMPETITIONS: Competition[] = [
-  { id: 'c1', slug: 'junior-water-prize-2569', name: 'Thailand Junior Water Prize 2569', organizer: 'กรมทรัพยากรน้ำ', close_at: futureISO(3), source_url: '#' },
-  { id: 'c2', slug: 'science-project-regional-2569', name: 'การประกวดโครงงานวิทยาศาสตร์ ระดับภาค 2569', organizer: 'สมาคมวิทยาศาสตร์แห่งประเทศไทย', close_at: futureISO(12), source_url: '#' },
-  { id: 'c3', slug: 'young-inventor-2569', name: 'การประกวดสิ่งประดิษฐ์ของคนรุ่นใหม่', organizer: 'สำนักงานคณะกรรมการการอาชีวศึกษา', close_at: futureISO(26), source_url: '#' },
-  { id: 'c4', slug: 'nsc-2570', name: 'NSC การแข่งขันพัฒนาโปรแกรมคอมพิวเตอร์', organizer: 'NECTEC สวทช.', close_at: futureISO(41), source_url: '#' },
+  { id: 'c1', slug: 'junior-water-prize-2569', name: 'Thailand Junior Water Prize 2569', organizer: 'กรมทรัพยากรน้ำ', close_at: futureISO(3), source_url: 'https://example.org/jwp' },
+  { id: 'c2', slug: 'science-project-regional-2569', name: 'การประกวดโครงงานวิทยาศาสตร์ ระดับภาค 2569', organizer: 'สมาคมวิทยาศาสตร์แห่งประเทศไทย', close_at: futureISO(12), source_url: 'https://example.org/sci' },
+  { id: 'c3', slug: 'young-inventor-2569', name: 'การประกวดสิ่งประดิษฐ์ของคนรุ่นใหม่', organizer: 'สำนักงานคณะกรรมการการอาชีวศึกษา', close_at: futureISO(26), source_url: 'https://example.org/inv' },
+  { id: 'c4', slug: 'nsc-2570', name: 'NSC การแข่งขันพัฒนาโปรแกรมคอมพิวเตอร์', organizer: 'NECTEC สวทช.', close_at: futureISO(41), source_url: 'https://example.org/nsc' },
 ];
 
 function futureISO(days: number) {
@@ -283,7 +283,7 @@ export async function getCompetitions(): Promise<Competition[]> {
   try {
     const { data, error } = await anonClient()
       .from('v_competitions')
-      .select('id, slug, name, organizer, close_at, source_url')
+      .select('id, slug, name, organizer, close_at, source_url, cover_url')
       .gte('close_at', new Date().toISOString().slice(0, 10))
       .order('close_at');
     if (error || !data) return SAMPLE_COMPETITIONS;
