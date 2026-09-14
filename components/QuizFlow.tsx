@@ -215,7 +215,7 @@ function QuizResult({
       setCalculating(false);
       return;
     }
-    const t = setTimeout(() => setCalculating(false), 1500);
+    const t = setTimeout(() => setCalculating(false), 2800);
     return () => clearTimeout(t);
   }, []);
 
@@ -327,7 +327,7 @@ function Calculating({ count }: { count: number }) {
       </div>
 
       <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-brand-light">
-        <div className="h-full rounded-full bg-brand animate-[fillbar_1.5s_ease-out_forwards]" />
+        <div className="h-full rounded-full bg-brand animate-[fillbar_2.8s_ease-out_forwards]" />
       </div>
 
       <span className="sr-only">กำลังคำนวณผลลัพธ์…</span>
