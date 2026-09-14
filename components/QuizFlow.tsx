@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { QUIZ, scoreQuiz, type QuizAnswers } from '@/lib/quiz';
 import { recommend, FACTOR_LABELS, type FactorKey, type Recommendation } from '@/lib/recommend';
 import { DIFFICULTY_TH, budgetLabel, type Project } from '@/lib/types';
@@ -336,10 +337,10 @@ function BestCard({ rec }: { rec: Recommendation }) {
     <article className="flex flex-col gap-5 overflow-hidden rounded-card border-2 border-brand bg-surface p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1">
-          <Link href={`/projects/${p.slug}`} className="font-display text-xl font-bold text-ink hover:text-brand-deep">
+          <Link href={`/projects/${p.slug}`} className="font-display text-xl font-bold leading-snug text-ink hover:text-brand-deep">
             {p.title}
           </Link>
-          <p className="text-sm text-muted">{p.summary}</p>
+          {p.summary && <p className="text-sm text-muted">{p.summary}</p>}
         </div>
         <MatchScore value={rec.overall} />
       </div>
@@ -373,16 +374,40 @@ function BestCard({ rec }: { rec: Recommendation }) {
 
 function OtherCard({ rec }: { rec: Recommendation }) {
   const p = rec.project;
+  const poster = /^https?:\/\//i.test(p.cover_url ?? '') ? p.cover_url! : null;
+
   return (
-    <article className="flex w-full flex-col gap-3 rounded-card border border-line bg-surface p-5 transition duration-200 hover:border-brand hover:shadow-lift">
-      <div className="flex items-start justify-between gap-3">
-        <Link href={`/projects/${p.slug}`} className="font-display text-base font-semibold text-ink hover:text-brand-deep">
-          {p.title}
-        </Link>
-        <MatchScore value={rec.overall} small />
+    <Link
+      href={`/projects/${p.slug}`}
+      className="group flex w-full gap-4 rounded-card border border-line bg-surface p-3 transition duration-200 hover:border-brand hover:shadow-lift"
+    >
+      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-brand-light">
+        {poster ? (
+          <Image
+            src={poster}
+            alt=""
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="96px"
+          />
+        ) : (
+          <span className="block h-full w-full bg-gradient-to-br from-brand to-brand-deep" aria-hidden />
+        )}
+        <span className="absolute left-1.5 top-1.5 rounded-md bg-white/95 px-1.5 py-0.5 text-xs font-bold text-brand-deep shadow-sm">
+          {rec.overall}%
+        </span>
       </div>
-      <FactorBreakdown factors={rec.factors} compact />
-      <p className="text-sm text-muted">{rec.reason}</p>
-    </article>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <h3 className="line-clamp-2 font-display text-sm font-semibold leading-snug text-ink group-hover:text-brand-deep">
+          {p.title}
+        </h3>
+        <span className="mt-auto flex flex-wrap gap-1.5 text-xs">
+          <Fact>{DIFFICULTY_TH[p.difficulty]}</Fact>
+          <Fact>{budgetLabel(p.budget_min, p.budget_max)}</Fact>
+          <Fact>{p.duration_weeks} สัปดาห์</Fact>
+        </span>
+      </div>
+    </Link>
   );
 }
