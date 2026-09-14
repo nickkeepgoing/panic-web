@@ -208,13 +208,9 @@ function QuizResult({
   const weak = !!best && best.overall < 55;
 
   // ผลลัพธ์คำนวณเสร็จทันที แต่โชว์หน้า "กำลังคำนวณ" สั้น ๆ ให้ผู้ใช้รู้สึกว่าระบบ
-  // กำลังวิเคราะห์คำตอบจริง ผู้ที่ตั้งค่าลดการเคลื่อนไหวไว้จะข้ามไปดูผลทันที
+  // กำลังวิเคราะห์คำตอบจริง (แถบ/แท่งจะหยุดนิ่งเองถ้าผู้ใช้ตั้งค่าลดการเคลื่อนไหว)
   const [calculating, setCalculating] = useState(true);
   useEffect(() => {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      setCalculating(false);
-      return;
-    }
     const t = setTimeout(() => setCalculating(false), 2800);
     return () => clearTimeout(t);
   }, []);
