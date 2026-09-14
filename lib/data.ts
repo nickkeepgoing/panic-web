@@ -198,7 +198,7 @@ export async function getProjects(): Promise<Project[]> {
   try {
     const { data, error } = await anonClient()
       .from('projects')
-      .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, categories(name_th)')
+      .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, categories(name_th), project_tags(tags(slug))')
       .eq('status', 'published')
       .order('published_at', { ascending: false });
     if (error || !data) return SAMPLE_PROJECTS;
@@ -296,9 +296,14 @@ export async function getCompetitions(): Promise<Competition[]> {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function mapProject(row: any): Project {
+  // แท็กมาจากตารางเชื่อม project_tags(tags(slug)) — แปลงให้เป็น string[] แบน ๆ
+  // ระบบแนะนำ (lib/recommend.ts) ใช้แท็กนี้จับคู่ความสนใจ ถ้าไม่ดึงมาการจับคู่จะพังเงียบ ๆ
+  const tags = Array.isArray(row.project_tags)
+    ? row.project_tags.map((pt: any) => pt?.tags?.slug).filter(Boolean)
+    : (row.tags ?? []);
   return {
     ...row,
     category: row.categories?.name_th ?? 'ทั่วไป',
-    tags: row.tags ?? [],
+    tags,
   } as Project;
 }

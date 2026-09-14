@@ -39,24 +39,28 @@ export default async function AdminProjects() {
       ) : (
         <ul className="divide-y divide-line rounded-card border border-line bg-surface">
           {rows.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-center gap-3 p-4">
-              <span className="flex-1 text-ink">{p.title}</span>
-              <span className="rounded-full bg-brand-light px-2.5 py-0.5 text-xs text-brand-deep">
-                {STATUS_TH[p.status] ?? p.status}
-              </span>
-              <Link
-                href={`/admin/projects/${p.id}/edit`}
-                className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:border-brand hover:text-brand-deep"
-              >
-                แก้ไข
-              </Link>
-              <form action={setProjectStatus}>
-                <input type="hidden" name="id" value={p.id} />
-                <input type="hidden" name="status" value={p.status === 'published' ? 'draft' : 'published'} />
-                <button className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:border-brand hover:text-brand-deep">
-                  {p.status === 'published' ? 'ถอนออก' : 'เผยแพร่'}
-                </button>
-              </form>
+            <li key={p.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+              <span className="min-w-0 flex-1 break-words text-ink">{p.title}</span>
+              {/* สถานะ + ปุ่มจัดการอยู่กลุ่มเดียวกัน จอเล็กจึงตกลงมาเป็นแถวเดียวใต้ชื่อ
+                  ไม่กระจายทีละชิ้น และชิดขวาพร้อมกันบนจอกว้าง */}
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <span className="rounded-full bg-brand-light px-2.5 py-0.5 text-xs text-brand-deep">
+                  {STATUS_TH[p.status] ?? p.status}
+                </span>
+                <Link
+                  href={`/admin/projects/${p.id}/edit`}
+                  className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:border-brand hover:text-brand-deep"
+                >
+                  แก้ไข
+                </Link>
+                <form action={setProjectStatus}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <input type="hidden" name="status" value={p.status === 'published' ? 'draft' : 'published'} />
+                  <button className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:border-brand hover:text-brand-deep">
+                    {p.status === 'published' ? 'ถอนออก' : 'เผยแพร่'}
+                  </button>
+                </form>
+              </div>
             </li>
           ))}
         </ul>

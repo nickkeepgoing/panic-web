@@ -47,6 +47,16 @@ export default async function BrowsePage({ searchParams }: { searchParams: Searc
 
   return (
     <div className="flex flex-col gap-6">
+      <Link
+        href="/"
+        className="inline-flex w-fit items-center gap-1.5 text-sm text-muted transition-colors duration-200 hover:text-brand-deep"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        กลับหน้าแรก
+      </Link>
+
       <div className="flex flex-wrap items-baseline gap-3">
         <h1 className="font-display text-3xl font-bold text-ink">คลังโครงงาน</h1>
         <p className="text-muted">
