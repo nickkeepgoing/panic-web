@@ -50,7 +50,7 @@ export function AuthForm({ next }: { next?: string }) {
         return;
       }
       await sb.from('profiles').upsert({ id: data.session.user.id, display_name: displayName.trim() });
-      // Hard reload so AuthNav and all server components reflect new session
+      // Hard reload so SiteNav and all server components reflect new session
       window.location.href = next ?? '/me';
       return;
     }

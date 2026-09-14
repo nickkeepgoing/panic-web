@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans_Thai, Bai_Jamjuree } from 'next/font/google';
 import Link from 'next/link';
-import { AuthNav } from '@/components/AuthNav';
-import { NavMenu } from '@/components/NavMenu';
+import { SiteNav } from '@/components/SiteNav';
+import { NAV } from '@/lib/nav';
 import './globals.css';
 
 const body = IBM_Plex_Sans_Thai({
@@ -25,12 +25,6 @@ export const metadata: Metadata = {
     'คลังไอเดียโครงงานวิทยาศาสตร์และเทคโนโลยีสำหรับนักเรียน ป.4–ม.6 พร้อมวิธีทำ งบประมาณ ระยะเวลา และปฏิทินกิจกรรมที่เปิดรับสมัครจริง',
 };
 
-const NAV = [
-  { href: '/projects', label: 'คลังโครงงาน' },
-  { href: '/quiz', label: 'แบบทดสอบ' },
-  { href: '/calendar', label: 'ปฏิทินกิจกรรม' },
-];
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="th" className={`${body.variable} ${display.variable}`}>
@@ -44,32 +38,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           ข้ามไปยังเนื้อหาหลัก
         </a>
 
-        <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-3">
-            <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold tracking-tight text-ink">
-              <span className="flex h-8 items-center gap-px rounded-md px-1.5" aria-hidden>
-                <i className="h-4 w-1 rounded-sm bg-sci" />
-                <i className="h-5 w-1 rounded-sm bg-tech" />
-                <i className="h-6 w-1 rounded-sm bg-engr" />
-                <i className="h-5 w-1 rounded-sm bg-envi" />
-                <i className="h-4 w-1 rounded-sm bg-soci" />
-              </span>
-              P.A.N.I.C.
-            </Link>
-            <nav className="ml-auto flex items-center gap-1 text-sm">
-              {NAV.map((n) => (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  className="hidden min-h-[44px] items-center rounded-lg px-3 text-muted transition-colors duration-200 hover:bg-brand-light hover:text-brand-deep sm:inline-flex"
-                >
-                  {n.label}
-                </Link>
-              ))}
-              <NavMenu />
-              <AuthNav />
-            </nav>
-          </div>
+        <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
+          <SiteNav />
         </header>
 
         <main id="content" className="mx-auto max-w-6xl px-5 py-10">{children}</main>
