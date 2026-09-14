@@ -35,6 +35,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="th" className={`${body.variable} ${display.variable}`}>
       <body className="font-sans">
+        {/* หัวเว็บเป็น sticky และมีลิงก์หลายตัว คนที่ใช้คีย์บอร์ดจึงต้องกด Tab ผ่านทุกครั้ง
+            ลิงก์ข้ามนี้ซ่อนอยู่จนกว่าจะถูกโฟกัส แล้วพาไปที่เนื้อหาหลักทันที */}
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2.5 focus:font-medium focus:text-white"
+        >
+          ข้ามไปยังเนื้อหาหลัก
+        </a>
+
         <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center gap-5 px-5 py-3">
             <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold tracking-tight text-ink">
@@ -52,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link
                   key={n.href}
                   href={n.href}
-                  className="hidden rounded-lg px-3 py-1.5 text-muted hover:bg-brand-light hover:text-brand-deep sm:block"
+                  className="hidden min-h-[44px] items-center rounded-lg px-3 text-muted transition-colors duration-200 hover:bg-brand-light hover:text-brand-deep sm:inline-flex"
                 >
                   {n.label}
                 </Link>
@@ -63,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
 
-        <main className="mx-auto max-w-6xl px-5 py-10">{children}</main>
+        <main id="content" className="mx-auto max-w-6xl px-5 py-10">{children}</main>
 
         <footer className="mt-16 border-t border-line bg-surface">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 sm:flex-row sm:gap-10">
@@ -73,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
             <nav className="flex flex-col gap-1 text-sm sm:ml-auto">
               {NAV.map((n) => (
-                <Link key={n.href} href={n.href} className="text-muted hover:text-brand-deep">
+                <Link key={n.href} href={n.href} className="inline-flex min-h-[44px] items-center text-muted transition-colors duration-200 hover:text-brand-deep">
                   {n.label}
                 </Link>
               ))}

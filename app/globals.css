@@ -4,6 +4,15 @@
 
 :root { color-scheme: light; }
 
+/* ลิงก์ข้ามและลิงก์ anchor ควรเลื่อนให้เห็นว่าไปโผล่ตรงไหน
+   แต่ต้องปิดทิ้งเมื่อผู้ใช้ตั้งค่าไม่เอาภาพเคลื่อนไหว */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* หัวเว็บเป็น sticky สูงราว 60px ถ้าไม่กันไว้ หัวข้อที่ถูกกระโดดไปหาจะโดนบัง */
+html { scroll-padding-top: 72px; }
+
 body {
   background: #FBF4F7;
   color: #241019;

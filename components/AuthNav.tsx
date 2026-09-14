@@ -22,11 +22,11 @@ export function AuthNav() {
     return () => { alive = false; };
   }, []);
 
-  if (!state) return <span className="w-20" />;
+  if (!state) return <span className="block h-11 w-24" aria-hidden />;
 
   if (!state.signedIn) {
     return (
-      <Link href="/login" className="rounded-lg bg-brand px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-deep">
+      <Link href="/login" className="inline-flex min-h-[44px] items-center rounded-lg bg-brand px-4 text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-deep">
         เข้าสู่ระบบ
       </Link>
     );
@@ -35,15 +35,15 @@ export function AuthNav() {
   return (
     <span className="flex items-center gap-1">
       {state.admin && (
-        <Link href="/admin" className="rounded-lg px-3 py-1.5 text-sm text-muted hover:bg-brand-light hover:text-brand-deep">
+        <Link href="/admin" className="inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm text-muted transition-colors duration-200 hover:bg-brand-light hover:text-brand-deep">
           ผู้ดูแล
         </Link>
       )}
-      <Link href="/me" className="rounded-lg px-3 py-1.5 text-sm text-muted hover:bg-brand-light hover:text-brand-deep">
+      <Link href="/me" className="inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm text-muted transition-colors duration-200 hover:bg-brand-light hover:text-brand-deep">
         ของฉัน
       </Link>
       <form action="/auth/signout" method="post">
-        <button className="rounded-lg px-3 py-1.5 text-sm text-muted hover:text-brand-deep">ออกจากระบบ</button>
+        <button className="inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm text-muted transition-colors duration-200 hover:text-brand-deep">ออกจากระบบ</button>
       </form>
     </span>
   );

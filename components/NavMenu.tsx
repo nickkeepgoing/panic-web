@@ -21,8 +21,9 @@ export function NavMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-brand-light hover:text-brand-deep"
+        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted transition-colors duration-200 hover:bg-brand-light hover:text-brand-deep"
         aria-label={open ? 'ปิดเมนู' : 'เปิดเมนู'}
+        aria-expanded={open}
       >
         {open ? (
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -38,7 +39,7 @@ export function NavMenu() {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <nav className="absolute right-0 top-11 z-20 w-52 overflow-hidden rounded-card border border-line bg-surface shadow-lift">
+          <nav className="absolute right-0 top-12 z-20 w-52 overflow-hidden rounded-card border border-line bg-surface shadow-lift">
             {NAV.map((n) => (
               <Link
                 key={n.href}

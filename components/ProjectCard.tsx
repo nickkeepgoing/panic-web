@@ -9,7 +9,7 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface hover:shadow-lift"
+      className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface transition duration-200 hover:border-brand hover:shadow-lift"
     >
       {project.cover_url ? (
         <div className="relative h-40 w-full overflow-hidden bg-ground">
@@ -28,23 +28,23 @@ export function ProjectCard({ project }: { project: Project }) {
         <span className={`h-1.5 w-full ${c.bar}`} aria-hidden />
       )}
 
-      <span className="flex flex-1 flex-col gap-2 p-5">
+      <div className="flex flex-1 flex-col gap-2 p-5">
         {!project.cover_url && (
           <span className={`w-fit rounded-md px-2 py-0.5 text-xs font-medium ${c.bg} ${c.text}`}>
             {project.category}
           </span>
         )}
-        <span className="font-display text-lg font-semibold text-ink group-hover:text-brand-deep">
+        <h3 className="font-display text-lg font-semibold text-ink group-hover:text-brand-deep">
           {project.title}
-        </span>
-        <span className="text-sm text-muted">{project.summary}</span>
+        </h3>
+        <p className="text-sm text-muted">{project.summary}</p>
 
         <span className="mt-auto flex flex-wrap gap-1.5 pt-4 text-xs">
           <Fact>{DIFFICULTY_TH[project.difficulty]}</Fact>
           <Fact>{budgetLabel(project.budget_min, project.budget_max)}</Fact>
           <Fact>{project.duration_weeks} สัปดาห์</Fact>
         </span>
-      </span>
+      </div>
     </Link>
   );
 }

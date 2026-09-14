@@ -112,11 +112,13 @@ export default async function BrowsePage({ searchParams }: { searchParams: Searc
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* ชื่อโครงงานในการ์ดเป็น h3 หัวข้อระดับ h2 นี้จึงกันไม่ให้ลำดับหัวข้อกระโดดข้าม */}
+          <h2 className="sr-only">ผลการค้นหา</h2>
           {projects.map((p) => (
             <ProjectCard key={p.id} project={p} />
           ))}
-        </div>
+        </section>
       )}
     </div>
   );
