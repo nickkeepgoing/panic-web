@@ -1,3 +1,4 @@
+import { parsePrice } from './types';
 import type { TagSlug } from './quiz';
 import { TAG_LABELS } from './quiz';
 
@@ -63,7 +64,7 @@ function parseMaterials(raw: string) {
   if (!raw.trim()) return [];
   return raw.split('||').map((s) => s.trim()).filter(Boolean).map((line) => {
     const [name, qty, price] = line.split('|').map((p) => p.trim());
-    return { name: name ?? '', qty: qty ?? '', est_price: Number(price ?? 0) || 0 };
+    return { name: name ?? '', qty: qty ?? '', est_price: parsePrice(price) };
   });
 }
 

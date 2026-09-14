@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { serverClient, isAdmin } from '@/lib/supabase/server';
+import { parsePrice } from '@/lib/types';
 
 function slugify(input: string) {
   return input
@@ -25,7 +26,9 @@ function parseMaterials(raw: string) {
     .split('\n').map((l) => l.trim()).filter(Boolean)
     .map((line) => {
       const parts = line.split('|').map((p) => p.trim());
-      return { name: parts[0] ?? '', qty: parts[1] ?? '', est_price: Number(parts[2] ?? 0) };
+      // ห้ามใช้ Number() ตรง ๆ — ถ้าแอดมินพิมพ์ "120 บาท" จะได้ NaN
+      // ซึ่งตอนเขียนลง jsonb จะกลายเป็น null แล้วหน้าโครงงานจะพังทั้งหน้า
+      return { name: parts[0] ?? '', qty: parts[1] ?? '', est_price: parsePrice(parts[2]) };
     });
 }
 

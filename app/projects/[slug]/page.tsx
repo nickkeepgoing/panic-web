@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getProject } from '@/lib/data';
-import { DIFFICULTY_TH, budgetLabel, gradeLabel } from '@/lib/types';
+import { DIFFICULTY_TH, budgetLabel, gradeLabel, priceLabel } from '@/lib/types';
 import { categoryStyle } from '@/lib/categories';
 import { SaveButton } from '@/components/SaveButton';
 
@@ -22,7 +22,8 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     { label: 'ระดับชั้น', value: gradeLabel(project.grade_min, project.grade_max) },
   ];
 
-  const totalCost = (project.materials ?? []).reduce((s, m) => s + m.est_price, 0);
+  // บวกเฉพาะราคาที่เป็นตัวเลขจริง แถวเก่าบางแถวเก็บ est_price เป็น null ไว้
+  const totalCost = (project.materials ?? []).reduce((s, m) => s + (Number.isFinite(m.est_price) ? m.est_price : 0), 0);
 
   return (
     <article className="flex flex-col gap-10">
@@ -106,7 +107,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                     <span className="flex-1 text-ink">{m.name}</span>
                     <span className="text-xs text-muted">{m.qty}</span>
                     <span className="w-20 text-right text-muted">
-                      {m.est_price === 0 ? 'ไม่มีค่าใช้จ่าย' : `${m.est_price.toLocaleString('th-TH')} บาท`}
+                      {priceLabel(m.est_price)}
                     </span>
                   </li>
                 ))}
@@ -114,7 +115,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
               <p className="mt-3 flex items-baseline justify-between border-t border-line pt-3 text-sm">
                 <span className="text-muted">รวมโดยประมาณ</span>
                 <span className="font-display text-lg font-bold text-ink">
-                  {totalCost === 0 ? 'ไม่มีค่าใช้จ่าย' : `${totalCost.toLocaleString('th-TH')} บาท`}
+                  {priceLabel(totalCost)}
                 </span>
               </p>
             </div>

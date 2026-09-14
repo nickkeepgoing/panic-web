@@ -195,13 +195,18 @@ function futureISO(days: number) {
 // ------------------------------------------------------------------
 export async function getProjects(): Promise<Project[]> {
   if (!hasSupabase) return SAMPLE_PROJECTS;
-  const { data, error } = await anonClient()
-    .from('projects')
-    .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, categories(name_th)')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false });
-  if (error || !data) return SAMPLE_PROJECTS;
-  return data.map(mapProject);
+  try {
+    const { data, error } = await anonClient()
+      .from('projects')
+      .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, categories(name_th)')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
+    if (error || !data) return SAMPLE_PROJECTS;
+    return data.map(mapProject);
+  } catch (e) {
+    logDbFailure('getProjects', e);
+    return SAMPLE_PROJECTS;
+  }
 }
 
 export async function getProject(slug: string): Promise<Project | null> {
@@ -226,27 +231,41 @@ export async function getProject(slug: string): Promise<Project | null> {
     'id, slug, title, summary, category_id, difficulty, budget_min, budget_max, ' +
     'duration_weeks, grade_min, grade_max, purpose_md, difficulty_md, steps, ' +
     'materials, extension_md, cover_url, status, categories(name_th)';
-  const sb = anonClient();
-  const { data } = await sb
-    .from('projects')
-    .select(cols)
-    .in('slug', Array.from(candidates))
-    .limit(1)
-    .maybeSingle();
-  if (data) return mapProject(data);
+  try {
+    const sb = anonClient();
+    const { data } = await sb
+      .from('projects')
+      .select(cols)
+      .in('slug', Array.from(candidates))
+      .limit(1)
+      .maybeSingle();
+    if (data) return mapProject(data);
 
-  // Fallback: slug ใน DB อาจถูกเก็บเป็นรูป Unicode ที่ไม่ตรงกับที่ client ส่งมาเป๊ะ ๆ
-  // (เช่นลำดับสระ/วรรณยุกต์ที่ไม่ใช่ NFC) — ดึง slug ทั้งหมดมาเทียบแบบ normalize
-  // แล้วค่อยดึงแถวที่ตรงจริง จำนวนโครงงานไม่มากจึงไม่หนัก และวิ่งเฉพาะตอนหาไม่เจอ
-  const wanted = new Set(Array.from(candidates).map(normNFC));
-  const { data: rows } = await sb.from('projects').select('slug');
-  const hit = (rows ?? []).find((r) => wanted.has(normNFC(r.slug as string)));
-  if (hit) {
-    const { data: exact } = await sb.from('projects').select(cols).eq('slug', hit.slug).maybeSingle();
-    if (exact) return mapProject(exact);
+    // Fallback: slug ใน DB อาจถูกเก็บเป็นรูป Unicode ที่ไม่ตรงกับที่ client ส่งมาเป๊ะ ๆ
+    // (เช่นลำดับสระ/วรรณยุกต์ที่ไม่ใช่ NFC) — ดึง slug ทั้งหมดมาเทียบแบบ normalize
+    // แล้วค่อยดึงแถวที่ตรงจริง จำนวนโครงงานไม่มากจึงไม่หนัก และวิ่งเฉพาะตอนหาไม่เจอ
+    const wanted = new Set(Array.from(candidates).map(normNFC));
+    const { data: rows } = await sb.from('projects').select('slug');
+    const hit = (rows ?? []).find((r) => wanted.has(normNFC(r.slug as string)));
+    if (hit) {
+      const { data: exact } = await sb.from('projects').select(cols).eq('slug', hit.slug).maybeSingle();
+      if (exact) return mapProject(exact);
+    }
+  } catch (e) {
+    logDbFailure('getProject', e);
   }
 
   return SAMPLE_PROJECTS.find((p) => matchSlug(p.slug, slug)) ?? null;
+}
+
+/**
+ * supabase-js คืน { error } เฉพาะตอนฐานข้อมูลตอบกลับมาเท่านั้น
+ * ถ้าต่อไม่ติดเลย (โปรเจกต์ถูกพัก, DNS/เน็ตหลุด, timeout ตอน cold start)
+ * มันจะ throw ออกมา ซึ่งจะทำให้ทั้งหน้าพังเป็น server exception
+ * จึงดักไว้ทุกจุดแล้วถอยไปใช้ข้อมูลตัวอย่าง ให้หน้าเว็บยังอ่านได้
+ */
+function logDbFailure(where: string, e: unknown) {
+  console.error(`[data] ${where} ต่อ Supabase ไม่ได้ ใช้ข้อมูลตัวอย่างแทน:`, e);
 }
 
 function normNFC(s: string) {
@@ -261,13 +280,18 @@ function matchSlug(stored: string, incoming: string) {
 
 export async function getCompetitions(): Promise<Competition[]> {
   if (!hasSupabase) return SAMPLE_COMPETITIONS;
-  const { data, error } = await anonClient()
-    .from('v_competitions')
-    .select('id, slug, name, organizer, close_at, source_url')
-    .gte('close_at', new Date().toISOString().slice(0, 10))
-    .order('close_at');
-  if (error || !data) return SAMPLE_COMPETITIONS;
-  return data as Competition[];
+  try {
+    const { data, error } = await anonClient()
+      .from('v_competitions')
+      .select('id, slug, name, organizer, close_at, source_url')
+      .gte('close_at', new Date().toISOString().slice(0, 10))
+      .order('close_at');
+    if (error || !data) return SAMPLE_COMPETITIONS;
+    return data as Competition[];
+  } catch (e) {
+    logDbFailure('getCompetitions', e);
+    return SAMPLE_COMPETITIONS;
+  }
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
