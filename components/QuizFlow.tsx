@@ -307,7 +307,7 @@ function QuizResult({
 function Calculating({ count }: { count: number }) {
   return (
     <div className="flex flex-col items-center gap-8 py-20 text-center" role="status" aria-live="polite">
-      <div className="flex h-24 w-24 items-end justify-center gap-2 rounded-2xl bg-brand p-5">
+      <div className="flex h-24 w-24 items-end justify-center gap-1.5 rounded-2xl bg-brand p-5">
         {[0, 1, 2, 3, 4].map((i) => (
           <span
             key={i}
@@ -373,9 +373,9 @@ function BestCard({ rec }: { rec: Recommendation }) {
   const p = rec.project;
   return (
     <article className="flex flex-col gap-5 overflow-hidden rounded-card border-2 border-brand bg-surface p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <Link href={`/projects/${p.slug}`} className="font-display text-xl font-bold leading-snug text-ink hover:text-brand-deep">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <Link href={`/projects/${p.slug}`} className="break-words font-display text-lg font-bold leading-snug text-ink hover:text-brand-deep sm:text-xl">
             {p.title}
           </Link>
           {p.summary && <p className="text-sm text-muted">{p.summary}</p>}
@@ -437,7 +437,7 @@ function OtherCard({ rec }: { rec: Recommendation }) {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h3 className="line-clamp-2 font-display text-sm font-semibold leading-snug text-ink group-hover:text-brand-deep">
+        <h3 className="line-clamp-2 break-words font-display text-sm font-semibold leading-snug text-ink group-hover:text-brand-deep">
           {p.title}
         </h3>
         <span className="mt-auto flex flex-wrap gap-1.5 text-xs">
