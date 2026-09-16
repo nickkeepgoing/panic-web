@@ -135,6 +135,63 @@ export default async function HomePage() {
         </ol>
       </section>
 
+      {/* ─── Career Discovery CTA ──────────────────────────────────────
+          โปรโมต Career Quiz ให้นักเรียนเห็นตั้งแต่หน้าแรก
+          ใช้ gradient brand + grid-paper ให้โดดเด่น */}
+      <section className="relative overflow-hidden rounded-card border border-brand/20 bg-brand px-6 py-10 sm:px-10 sm:py-12">
+        <div className="grid-paper absolute inset-0 opacity-[0.07]" aria-hidden />
+        <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white">
+                <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
+                ค้นพบตัวเอง
+              </span>
+              <h2 className="font-display text-2xl font-bold text-white sm:text-3xl">
+                ยังไม่รู้ว่าอยากเป็นอะไร?<br className="hidden sm:block" /> ลองหาคำตอบจากชีวิตจริง
+              </h2>
+            </div>
+            <p className="max-w-prose text-white/80">
+              ตอบ 22 คำถามเกี่ยวกับสิ่งที่คุณทำ สิ่งที่คุณชอบ และสิ่งที่ทำให้เวลาผ่านไปเร็ว
+              ระบบจะวิเคราะห์บุคลิกและแนะนำอาชีพที่เหมาะกับคุณจาก 28 สาขา
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/career"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-white px-6 font-medium text-brand transition-colors duration-200 hover:bg-brand-light"
+              >
+                เริ่มค้นหาตัวเอง
+              </Link>
+              <p className="text-sm text-white/70">ใช้เวลา ~3 นาที · ไม่ต้องสมัครสมาชิก</p>
+            </div>
+          </div>
+
+          {/* ตัวอย่าง career badge แบบสุ่ม — ให้ความรู้สึกว่ามีอาชีพหลากหลาย */}
+          <div className="hidden flex-col gap-2 lg:flex" aria-hidden>
+            {[
+              { label: 'แพทย์',            color: '#0F7A55' },
+              { label: 'วิศวกรซอฟต์แวร์',  color: '#0A7EA4' },
+              { label: 'นักออกแบบ',         color: '#C22367' },
+              { label: 'ผู้ประกอบการ',      color: '#B35A00' },
+              { label: 'นักวิทยาศาสตร์',   color: '#5B3FD6' },
+              { label: 'ครู/อาจารย์',       color: '#A32E86' },
+            ].map((item, i) => (
+              <span
+                key={item.label}
+                className="rounded-full px-4 py-2 text-sm font-medium text-white shadow-lift"
+                style={{
+                  backgroundColor: item.color,
+                  opacity: 0.9,
+                  transform: `translateX(${i % 2 === 0 ? '0' : '24px'})`,
+                }}
+              >
+                {item.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── หมวดหมู่ ───────────────────────────────────────────────── */}
       <section className="flex flex-col gap-4">
         <h2 className="font-display text-2xl font-bold text-ink">เลือกจากสายที่ชอบ</h2>
