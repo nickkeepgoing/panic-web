@@ -13,7 +13,8 @@ export const revalidate = 60;
 // ใช้ใน 2 variant: solid (on dark/light) และ ghost (on dark)
 const btn = {
   solid: 'inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand px-6 font-display font-semibold text-white shadow-[0_4px_0_0_#7B1540] transition-all duration-100 hover:shadow-[0_2px_0_0_#7B1540] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none',
-  ghost: 'inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 font-display font-semibold text-white backdrop-blur transition-colors duration-200 hover:bg-white/12',
+  // ghost: light = outlined ink / dark = glass white
+  ghost: 'inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border border-line bg-surface/80 px-6 font-display font-semibold text-ink transition-all duration-100 hover:border-brand hover:text-brand-deep dark:border-white/20 dark:bg-white/5 dark:text-white dark:hover:bg-white/12',
   outline: 'inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-brand px-6 font-display font-semibold text-brand transition-all duration-100 hover:bg-brand hover:text-white',
 };
 
@@ -31,26 +32,32 @@ export default async function HomePage() {
           HERO — dark aurora background, bold headline, press-shadow CTAs
           อ้างอิง: 16personalities.com (dark immersive) + GitHub (press button)
           ═══════════════════════════════════════════════════════════════ */}
-      {/* hero: gradient overlay บน dark bg เพื่อให้โดดเด่น */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1A1040] via-[#16162A] to-[#0C0C18] px-6 py-16 ring-1 ring-white/5 sm:px-10 sm:py-20">
-        {/* Aurora blobs — CSS only, no JS, respects reduced-motion automatically */}
-        <div className="pointer-events-none absolute -left-28 -top-28 h-96 w-96 rounded-full bg-brand/40 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-sci/30 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tech/20 blur-3xl" aria-hidden />
+      {/* hero — light: soft brand gradient / dark: deep aurora */}
+      <section className="relative overflow-hidden rounded-3xl
+        bg-gradient-to-br from-[#F5E6F0] via-[#EEE8F8] to-surface
+        ring-1 ring-brand/10
+        dark:from-[#1A1040] dark:via-[#16162A] dark:to-[#0C0C18]
+        dark:ring-white/5
+        px-6 py-16 sm:px-10 sm:py-20">
+
+        {/* Aurora blobs: subtle in light, vivid in dark */}
+        <div className="pointer-events-none absolute -left-28 -top-28 h-96 w-96 rounded-full bg-brand/20 blur-3xl dark:bg-brand/40" aria-hidden />
+        <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-sci/15 blur-3xl dark:bg-sci/30" aria-hidden />
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tech/10 blur-3xl dark:bg-tech/20" aria-hidden />
 
         <div className="relative grid items-center gap-12 lg:grid-cols-[1.15fr_1fr]">
           {/* Left — copy */}
           <div className="flex flex-col items-start gap-7">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-white/60">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-3.5 py-1.5 text-sm text-brand-deep dark:border-white/10 dark:bg-white/5 dark:text-white/60">
               <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
               สำหรับนักเรียน ป.1 – ม.6
             </span>
 
-            <h1 className="font-display text-4xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="font-display text-4xl font-bold leading-[1.15] tracking-tight text-ink sm:text-5xl lg:text-6xl dark:text-white">
               หาโครงงาน<br />ที่ทำได้จริง
             </h1>
 
-            <p className="max-w-md text-base leading-relaxed text-white/60 sm:text-lg">
+            <p className="max-w-md text-base leading-relaxed text-muted sm:text-lg dark:text-white/60">
               คลังไอเดียโครงงานวิทยาศาสตร์และเทคโนโลยี ทุกเรื่องบอกงบ เวลา
               และวิธีทำครบตั้งแต่ต้นจนจบ
             </p>
@@ -64,28 +71,28 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            {/* Stats — large white numbers inside hero */}
-            <dl className="flex flex-wrap gap-x-8 gap-y-4 border-t border-white/10 pt-6">
+            {/* Stats */}
+            <dl className="flex flex-wrap gap-x-8 gap-y-4 border-t border-line pt-6 dark:border-white/10">
               <HeroStat value={projects.length} label="โครงงาน" />
               <HeroStat value={CATEGORY_ORDER.length} label="สายวิชา" />
               <HeroStat value={open.length} label="กิจกรรมเปิดรับ" />
             </dl>
           </div>
 
-          {/* Right — floating glass project cards (decorative) */}
+          {/* Right — floating project cards */}
           <div className="hidden flex-col gap-3 lg:flex" aria-hidden>
             {projects.slice(0, 3).map((p, i) => {
               const c = categoryStyle(p.category);
               return (
                 <div
                   key={p.id}
-                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur"
+                  className="flex items-center gap-3 rounded-2xl border border-line bg-surface/90 px-4 py-3 shadow-lift dark:border-white/10 dark:bg-white/5 dark:shadow-none dark:backdrop-blur"
                   style={{ marginLeft: i * 24, transform: `rotate(${(i - 1) * 0.7}deg)` }}
                 >
                   <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl font-display text-sm font-bold text-white ${c.bar}`}>
                     {c.abbr}
                   </span>
-                  <span className="text-sm font-medium text-white/80">{p.title}</span>
+                  <span className="text-sm font-medium text-ink dark:text-white/80">{p.title}</span>
                 </div>
               );
             })}
@@ -113,21 +120,24 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════
           CAREER DISCOVERY CTA — dark aurora, like 16personalities intro
           ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#200A18] via-[#16162A] to-[#0C0C18] px-6 py-12 ring-1 ring-white/5 sm:px-10 sm:py-16">
-        <div className="pointer-events-none absolute -left-16 -top-16 h-72 w-72 rounded-full bg-brand/40 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -right-12 bottom-0 h-64 w-64 rounded-full bg-sci/30 blur-3xl" aria-hidden />
+      <section className="relative overflow-hidden rounded-3xl
+        bg-gradient-to-br from-brand-light via-[#EEE8F8] to-surface ring-1 ring-brand/10
+        dark:from-[#200A18] dark:via-[#16162A] dark:to-[#0C0C18] dark:ring-white/5
+        px-6 py-12 sm:px-10 sm:py-16">
+        <div className="pointer-events-none absolute -left-16 -top-16 h-72 w-72 rounded-full bg-brand/20 blur-3xl dark:bg-brand/40" aria-hidden />
+        <div className="pointer-events-none absolute -right-12 bottom-0 h-64 w-64 rounded-full bg-sci/15 blur-3xl dark:bg-sci/30" aria-hidden />
 
         <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_auto]">
           <div className="flex flex-col gap-5">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/60">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-3 py-1.5 text-sm text-brand-deep dark:border-white/10 dark:bg-white/5 dark:text-white/60">
               <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
               ค้นพบตัวเอง
             </span>
-            <h2 className="font-display text-2xl font-bold leading-snug tracking-tight text-white sm:text-3xl">
+            <h2 className="font-display text-2xl font-bold leading-snug tracking-tight text-ink sm:text-3xl dark:text-white">
               ยังไม่รู้ว่าอยากเป็นอะไร?<br className="hidden sm:block" />
               ลองหาคำตอบจากชีวิตจริง
             </h2>
-            <p className="max-w-md text-white/60">
+            <p className="max-w-md text-muted dark:text-white/60">
               ตอบ 22 คำถามเกี่ยวกับสิ่งที่คุณทำและชอบ ระบบจะวิเคราะห์บุคลิก
               แล้วแนะนำอาชีพที่เหมาะกับคุณจาก 28 สาขา
             </p>
@@ -135,7 +145,7 @@ export default async function HomePage() {
               <Link href="/career" className={btn.solid}>
                 เริ่มค้นหาตัวเอง
               </Link>
-              <span className="text-sm text-white/40">ใช้เวลา ~3 นาที · ไม่ต้องสมัครสมาชิก</span>
+              <span className="text-sm text-muted dark:text-white/40">ใช้เวลา ~3 นาที · ไม่ต้องสมัครสมาชิก</span>
             </div>
           </div>
 
@@ -257,20 +267,23 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════
           BOTTOM CTA — dark, aurora-glow
           ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#200A18] to-[#0C0C18] px-6 py-14 text-center ring-1 ring-white/5 sm:px-10 sm:py-16">
-        <div className="pointer-events-none absolute left-1/2 top-0 h-48 w-96 -translate-x-1/2 rounded-full bg-brand/35 blur-3xl" aria-hidden />
+      <section className="relative overflow-hidden rounded-3xl
+        bg-gradient-to-b from-brand-light to-surface ring-1 ring-brand/10
+        dark:from-[#200A18] dark:to-[#0C0C18] dark:ring-white/5
+        px-6 py-14 text-center sm:px-10 sm:py-16">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-48 w-96 -translate-x-1/2 rounded-full bg-brand/20 blur-3xl dark:bg-brand/35" aria-hidden />
         <div className="relative mx-auto flex max-w-lg flex-col items-center gap-6">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl dark:text-white">
             ยังเลือกไม่ถูกใช่ไหม
           </h2>
-          <p className="text-white/60">
+          <p className="text-muted dark:text-white/60">
             ตอบสิบข้อเกี่ยวกับชั้นเรียน งบ และเวลาที่มี
             แล้วให้ระบบคัดเหลือเฉพาะเรื่องที่ทำเสร็จได้จริง
           </p>
           <Link href="/quiz" className={`${btn.solid} px-10`}>
             เริ่มตอบแบบทดสอบ
           </Link>
-          <p className="text-xs text-white/30">ดูได้ทุกหน้าโดยไม่ต้องเข้าสู่ระบบ</p>
+          <p className="text-xs text-muted/60 dark:text-white/30">ดูได้ทุกหน้าโดยไม่ต้องเข้าสู่ระบบ</p>
         </div>
       </section>
     </div>
@@ -282,8 +295,8 @@ export default async function HomePage() {
 function HeroStat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col-reverse">
-      <dt className="text-xs text-white/40">{label}</dt>
-      <dd className="font-display text-2xl font-bold text-white">{value.toLocaleString('th-TH')}</dd>
+      <dt className="text-xs text-muted dark:text-white/40">{label}</dt>
+      <dd className="font-display text-2xl font-bold text-ink dark:text-white">{value.toLocaleString('th-TH')}</dd>
     </div>
   );
 }
