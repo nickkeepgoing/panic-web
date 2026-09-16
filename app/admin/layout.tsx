@@ -11,6 +11,7 @@ const ADMIN_NAV = [
   { href: '/admin/competitions', label: 'กิจกรรมแข่งขัน' },
   { href: '/admin/queue', label: 'คิวตรวจอนุมัติ' },
   { href: '/admin/analytics', label: 'Analytics' },
+  { href: '/admin/settings',  label: 'การตั้งค่า' },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

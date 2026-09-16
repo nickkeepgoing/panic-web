@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { hasSupabase } from '@/lib/supabase/config';
 import { browserClient } from '@/lib/supabase/browser';
 import { NAV } from '@/lib/nav';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 type Auth = { signedIn: boolean; admin: boolean };
 
@@ -109,6 +110,7 @@ export function SiteNav() {
             </Link>
           ))}
           <span className="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden />
+          <ThemeToggle />
           <AccountLinks auth={auth} />
         </nav>
 
