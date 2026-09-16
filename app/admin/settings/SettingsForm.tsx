@@ -1,13 +1,27 @@
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
 import { saveSettings } from './actions';
 import type { SettingDef } from '@/lib/site-settings';
 
 type Props = { current: Record<string, string>; defs: SettingDef[] };
 
+function SubmitBtn() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-brand px-6 font-display font-semibold text-white shadow-[0_4px_0_0_#7B1540] transition-all duration-100 hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#7B1540] disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none"
+    >
+      {pending ? 'กำลังบันทึก…' : 'บันทึก'}
+    </button>
+  );
+}
+
 export function SettingsForm({ current, defs }: Props) {
-  const [state, action, pending] = useActionState(saveSettings, null);
+  const [state, action] = useFormState(saveSettings, null);
   const msgRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
@@ -55,13 +69,7 @@ export function SettingsForm({ current, defs }: Props) {
       )}
 
       <div>
-        <button
-          type="submit"
-          disabled={pending}
-          className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-brand px-6 font-display font-semibold text-white shadow-[0_4px_0_0_#7B1540] transition-all duration-100 hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#7B1540] disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none"
-        >
-          {pending ? 'กำลังบันทึก…' : 'บันทึก'}
-        </button>
+        <SubmitBtn />
       </div>
     </form>
   );

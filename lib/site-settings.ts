@@ -1,4 +1,5 @@
-// site-settings data access (no server actions here — see app/admin/settings/actions.ts)
+// site-settings data access — no server actions here (see app/admin/settings/actions.ts)
+import { hasSupabase } from './supabase/config';
 import { anonClient } from './supabase/server';
 
 export { hasSupabase } from './supabase/config';
@@ -15,13 +16,15 @@ export const SETTING_DEFS: SettingDef[] = [
 const TAG = 'site-settings';
 
 export async function getSiteSettings(): Promise<Record<string, string>> {
-  const { hasSupabase } = await import('./supabase/config');
   const defaults = Object.fromEntries(SETTING_DEFS.map((d) => [d.key, d.defaultValue]));
   if (!hasSupabase) return defaults;
   try {
     const { data } = await anonClient([TAG]).from('site_settings').select('key,value');
     if (!data) return defaults;
-    return { ...defaults, ...Object.fromEntries(data.map((r: { key: string; value: string }) => [r.key, r.value])) };
+    return {
+      ...defaults,
+      ...Object.fromEntries(data.map((r: { key: string; value: string }) => [r.key, r.value])),
+    };
   } catch {
     return defaults;
   }
