@@ -30,11 +30,12 @@ export default async function HomePage() {
           HERO — dark aurora background, bold headline, press-shadow CTAs
           อ้างอิง: 16personalities.com (dark immersive) + GitHub (press button)
           ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden rounded-3xl bg-[#0D0D14] px-6 py-16 sm:px-10 sm:py-20">
+      {/* hero: gradient overlay บน dark bg เพื่อให้โดดเด่น */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1A1040] via-[#16162A] to-[#0C0C18] px-6 py-16 ring-1 ring-white/5 sm:px-10 sm:py-20">
         {/* Aurora blobs — CSS only, no JS, respects reduced-motion automatically */}
-        <div className="pointer-events-none absolute -left-28 -top-28 h-96 w-96 rounded-full bg-brand/30 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-[#5B3FD6]/25 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0A7EA4]/15 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -left-28 -top-28 h-96 w-96 rounded-full bg-brand/40 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-sci/30 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-tech/20 blur-3xl" aria-hidden />
 
         <div className="relative grid items-center gap-12 lg:grid-cols-[1.15fr_1fr]">
           {/* Left — copy */}
@@ -111,9 +112,9 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════
           CAREER DISCOVERY CTA — dark aurora, like 16personalities intro
           ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden rounded-3xl bg-[#0D0D14] px-6 py-12 sm:px-10 sm:py-16">
-        <div className="pointer-events-none absolute -left-16 -top-16 h-72 w-72 rounded-full bg-brand/35 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -right-12 bottom-0 h-64 w-64 rounded-full bg-[#5B3FD6]/30 blur-3xl" aria-hidden />
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#200A18] via-[#16162A] to-[#0C0C18] px-6 py-12 ring-1 ring-white/5 sm:px-10 sm:py-16">
+        <div className="pointer-events-none absolute -left-16 -top-16 h-72 w-72 rounded-full bg-brand/40 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -right-12 bottom-0 h-64 w-64 rounded-full bg-sci/30 blur-3xl" aria-hidden />
 
         <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_auto]">
           <div className="flex flex-col gap-5">
@@ -254,8 +255,8 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════════
           BOTTOM CTA — dark, aurora-glow
           ═══════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden rounded-3xl bg-[#0D0D14] px-6 py-14 text-center sm:px-10 sm:py-16">
-        <div className="pointer-events-none absolute left-1/2 top-0 h-48 w-96 -translate-x-1/2 rounded-full bg-brand/25 blur-3xl" aria-hidden />
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#200A18] to-[#0C0C18] px-6 py-14 text-center ring-1 ring-white/5 sm:px-10 sm:py-16">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-48 w-96 -translate-x-1/2 rounded-full bg-brand/35 blur-3xl" aria-hidden />
         <div className="relative mx-auto flex max-w-lg flex-col items-center gap-6">
           <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
             ยังเลือกไม่ถูกใช่ไหม

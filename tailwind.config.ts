@@ -5,32 +5,34 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // พื้นหลังและตัวอักษร
-        ground:  '#FBF4F7',
-        surface: '#FFFFFF',
-        ink:     '#241019',
-        muted:   '#6B5560',
-        line:    '#EFD9E4',
+        // ─── Dark theme global tokens ───────────────────────────────
+        ground:  '#0C0C18',   // page background — deep dark
+        surface: '#16162A',   // card/panel surface — slightly lighter
+        ink:     '#ECE8F4',   // primary text — near white, warm
+        muted:   '#8B7C9A',   // secondary text — muted lavender (contrast ≥ 5:1 on surface)
+        line:    '#2C2248',   // borders — subtle dark purple
 
-        // สีประจำแบรนด์ P.A.N.I.C.
-        brand: { DEFAULT: '#C22367', deep: '#96144C', light: '#FFE3EE' },
+        // ─── Brand ─────────────────────────────────────────────────
+        brand: { DEFAULT: '#E03578', deep: '#C22367', light: '#2A0D1C' },
+        //   brand.light เป็น dark-pink สำหรับ hover/badge บน dark bg
 
-        // สีประจำหมวดหมู่ ห้าสายวิชา
-        sci:  '#5B3FD6',
-        tech: '#0A7EA4',
-        engr: '#B35A00',
-        envi: '#0F7A55',
-        soci: '#A32E86',
+        // ─── Category colors (vibrant, ใช้ได้บน dark) ─────────────
+        sci:  '#7C5FFF',   // purple brighter on dark
+        tech: '#22A6D4',   // cyan
+        engr: '#E07800',   // orange
+        envi: '#18A870',   // green
+        soci: '#C844B0',   // magenta
 
-        alert: '#C42B3C',
+        alert: '#F04455',
       },
       fontFamily: {
-        sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
+        sans:    ['var(--font-body)', 'system-ui', 'sans-serif'],
         display: ['var(--font-display)', 'var(--font-body)', 'sans-serif'],
       },
       borderRadius: { card: '14px' },
       boxShadow: {
-        lift: '0 1px 0 0 rgba(36,16,25,0.04), 0 8px 24px -12px rgba(36,16,25,0.25)',
+        // lift: on dark — subtle white glow instead of dark shadow
+        lift: '0 0 0 1px rgba(255,255,255,0.06), 0 8px 32px -8px rgba(0,0,0,0.5)',
       },
     },
   },
