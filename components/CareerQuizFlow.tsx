@@ -11,7 +11,7 @@ import type { Project } from '@/lib/types';
 type Props = {
   careers: Career[];
   projects: Project[];
-  sessionId: string;
+  initialSessionId: string; // อ่านจาก cookie ฝั่ง server (อาจว่าง)
 };
 
 type State = 'start' | 'quiz' | 'calculating' | 'results';
@@ -105,15 +105,30 @@ function CareerCard({ match }: { match: CareerMatch }) {
 }
 
 // ─── Main component ──────────────────────────────────────────────────────────
-export function CareerQuizFlow({ careers, projects, sessionId }: Props) {
+export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
   const [state, setState] = useState<State>('start');
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<CareerQuizAnswers>({});
   const [error, setError] = useState('');
   const [matches, setMatches] = useState<CareerMatch[]>([]);
   const [topDimsList, setTopDimsList] = useState<DimSlug[]>([]);
+  // session_id: อ่านจาก cookie ถ้ามีอยู่แล้ว ถ้าไม่มีสร้างใหม่แล้วเก็บใน cookie
+  const [sessionId, setSessionId] = useState(initialSessionId);
   const headingRef = useRef<HTMLLegendElement>(null);
   const helperId = useId();
+
+  useEffect(() => {
+    if (sessionId) return;
+    const existing = document.cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('panic_session_id='));
+    if (existing) {
+      setSessionId(existing.split('=')[1]);
+    } else {
+      const id = crypto.randomUUID();
+      document.cookie = `panic_session_id=${id}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+      setSessionId(id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ย้ายโฟกัสไปคำถามใหม่ทุกครั้ง (a11y — ตามแบบ QuizFlow)
   useEffect(() => {
