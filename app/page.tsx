@@ -43,7 +43,7 @@ export default async function HomePage() {
               href="/quiz"
               className="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-brand px-6 py-3 font-medium text-white transition-colors duration-200 hover:bg-brand-deep"
             >
-              ตอบ 10 ข้อ ให้ระบบเลือกให้
+              ทำแบบทดสอบหาโครงงาน
             </Link>
             <Link
               href="/projects"
