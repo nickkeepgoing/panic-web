@@ -1,23 +1,11 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans_Thai, Bai_Jamjuree } from 'next/font/google';
 import Link from 'next/link';
 import { SiteNav } from '@/components/SiteNav';
 import { NAV } from '@/lib/nav';
 import './globals.css';
 
-const body = IBM_Plex_Sans_Thai({
-  subsets: ['thai', 'latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-body',
-  display: 'swap',
-});
-
-const display = Bai_Jamjuree({
-  subsets: ['thai', 'latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-display',
-  display: 'swap',
-});
+const body = { variable: '' };
+const display = { variable: '' };
 
 export const metadata: Metadata = {
   title: 'P.A.N.I.C. — คลังไอเดียโครงงานวิทยาศาสตร์',
