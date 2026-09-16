@@ -119,6 +119,28 @@ export async function setProjectStatus(formData: FormData) {
 
 export type CompetitionFormState = { ok: boolean; message: string };
 
+/** หมุดปฏิทินของประกาศหนึ่งใบ — ใช้ร่วมกันทั้งตอนเพิ่มและตอนแก้ไข */
+function calendarPins(competitionId: string, openAt: string | null, closeAt: string, eventAt: string | null) {
+  return [
+    openAt && { competition_id: competitionId, kind: 'open', event_date: openAt },
+    { competition_id: competitionId, kind: 'close', event_date: closeAt },
+    eventAt && { competition_id: competitionId, kind: 'compete', event_date: eventAt },
+  ].filter(Boolean);
+}
+
+/** ฟิลด์ที่ฟอร์มเพิ่มและฟอร์มแก้ไขส่งมาเหมือนกัน */
+function readCompetitionForm(formData: FormData) {
+  return {
+    name: String(formData.get('name') ?? '').trim(),
+    organizer: String(formData.get('organizer') ?? ''),
+    source_url: String(formData.get('source_url') ?? ''),
+    cover_url: String(formData.get('cover_url') ?? '') || null,
+    open_at: String(formData.get('open_at') ?? '') || null,
+    close_at: String(formData.get('close_at') ?? ''),
+    event_at: String(formData.get('event_at') ?? '') || null,
+  };
+}
+
 /**
  * แปลง error จาก Supabase เป็นข้อความที่แอดมินอ่านแล้วแก้ต่อได้
  * 42501 เกิดบ่อยสุด — ตารางเปิด RLS ไว้แต่ไม่มี policy ฝั่งเขียน
@@ -139,45 +161,102 @@ export async function createCompetition(
 ): Promise<CompetitionFormState> {
   if (!(await isAdmin())) return { ok: false, message: 'ไม่มีสิทธิ์เพิ่มประกาศ — ต้องเป็น editor หรือ super admin' };
 
-  const name = String(formData.get('name') ?? '').trim();
-  const closeAt = String(formData.get('close_at') ?? '');
-  if (!name || !closeAt) return { ok: false, message: 'ต้องมีชื่อกิจกรรมและวันปิดรับ' };
+  const fields = readCompetitionForm(formData);
+  if (!fields.name || !fields.close_at) return { ok: false, message: 'ต้องมีชื่อกิจกรรมและวันปิดรับ' };
 
   const sb = serverClient();
-  const openAt = String(formData.get('open_at') ?? '') || null;
-  const eventAt = String(formData.get('event_at') ?? '') || null;
-
   const { data, error } = await sb.from('competitions').insert({
-    slug: slugify(name),
-    name,
-    organizer: String(formData.get('organizer') ?? ''),
-    source_url: String(formData.get('source_url') ?? ''),
-    cover_url: String(formData.get('cover_url') ?? '') || null,
-    open_at: openAt,
-    close_at: closeAt,
-    event_at: eventAt,
+    slug: slugify(fields.name),
+    ...fields,
     status: 'published',
   }).select('id').single();
 
   if (error) return { ok: false, message: describeWriteError(error) };
   if (!data) return { ok: false, message: 'บันทึกแล้วแต่ฐานข้อมูลไม่ส่ง id กลับมา ลองโหลดหน้านี้ใหม่เพื่อตรวจสอบ' };
 
-  const events = [
-    openAt && { competition_id: data.id, kind: 'open', event_date: openAt },
-    { competition_id: data.id, kind: 'close', event_date: closeAt },
-    eventAt && { competition_id: data.id, kind: 'compete', event_date: eventAt },
-  ].filter(Boolean);
   // ประกาศบันทึกไปแล้ว หมุดปฏิทินพลาดไม่ควรทำให้ทั้งฟอร์มล้ม แค่บอกให้รู้
-  const { error: eventsError } = await sb.from('competition_events').insert(events as never);
+  const { error: eventsError } = await sb
+    .from('competition_events')
+    .insert(calendarPins(data.id, fields.open_at, fields.close_at, fields.event_at) as never);
 
-  revalidatePath('/admin/competitions');
-  revalidatePath('/calendar');
-  revalidatePath('/');
+  revalidateCompetitionViews();
 
   return {
     ok: true,
     message: eventsError
-      ? `บันทึก "${name}" แล้ว แต่ลงหมุดปฏิทินไม่สำเร็จ: ${eventsError.message}`
-      : `บันทึกและเผยแพร่ "${name}" แล้ว`,
+      ? `บันทึก "${fields.name}" แล้ว แต่ลงหมุดปฏิทินไม่สำเร็จ: ${eventsError.message}`
+      : `บันทึกและเผยแพร่ "${fields.name}" แล้ว`,
   };
+}
+
+function revalidateCompetitionViews() {
+  revalidatePath('/admin/competitions');
+  revalidatePath('/calendar');
+  revalidatePath('/');
+}
+
+export async function updateCompetition(
+  _prev: CompetitionFormState,
+  formData: FormData,
+): Promise<CompetitionFormState> {
+  if (!(await isAdmin())) return { ok: false, message: 'ไม่มีสิทธิ์แก้ไขประกาศ — ต้องเป็น editor หรือ super admin' };
+
+  const id = String(formData.get('id') ?? '');
+  if (!id) return { ok: false, message: 'ไม่รู้ว่าจะแก้ประกาศไหน ลองกลับไปกดแก้ไขจากรายการอีกครั้ง' };
+
+  const fields = readCompetitionForm(formData);
+  if (!fields.name || !fields.close_at) return { ok: false, message: 'ต้องมีชื่อกิจกรรมและวันปิดรับ' };
+
+  const status = String(formData.get('status') ?? 'published');
+  const sb = serverClient();
+
+  // ไม่แตะ slug ตอนแก้ไข — เปลี่ยนชื่อแล้ว slug เปลี่ยนตาม จะชน unique กับใบเก่าได้
+  const { data, error } = await sb
+    .from('competitions')
+    .update({ ...fields, status, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
+
+  if (error) return { ok: false, message: describeWriteError(error) };
+  // ไม่ error แต่ไม่มีแถวกลับมา = ประกาศถูกลบไปแล้ว หรือ RLS ไม่ให้แก้ (ปฏิเสธเงียบ ไม่ใช่ 42501)
+  if (!data) return { ok: false, message: 'แก้ไขไม่สำเร็จ — ไม่พบประกาศนี้ (อาจถูกลบไปแล้ว) หรือฐานข้อมูลไม่อนุญาตให้แก้ไข' };
+
+  // วันที่อาจถูกแก้หรือลบออก ล้างหมุดเก่าทิ้งแล้วลงใหม่ทั้งชุดง่ายกว่าไล่เทียบทีละหมุด
+  const { error: clearError } = await sb.from('competition_events').delete().eq('competition_id', id);
+  const { error: eventsError } = clearError
+    ? { error: clearError }
+    : await sb
+        .from('competition_events')
+        .insert(calendarPins(id, fields.open_at, fields.close_at, fields.event_at) as never);
+
+  revalidateCompetitionViews();
+
+  return {
+    ok: true,
+    message: eventsError
+      ? `บันทึกการแก้ไขแล้ว แต่ปรับหมุดปฏิทินไม่สำเร็จ: ${eventsError.message}`
+      : `บันทึกการแก้ไข "${fields.name}" แล้ว`,
+  };
+}
+
+export async function deleteCompetition(
+  _prev: CompetitionFormState,
+  formData: FormData,
+): Promise<CompetitionFormState> {
+  if (!(await isAdmin())) return { ok: false, message: 'ไม่มีสิทธิ์ลบประกาศ — ต้องเป็น editor หรือ super admin' };
+
+  const id = String(formData.get('id') ?? '');
+  if (!id) return { ok: false, message: 'ไม่รู้ว่าจะลบประกาศไหน ลองโหลดหน้านี้ใหม่' };
+
+  // หมุดปฏิทินและรายการติดตามผูกไว้แบบ on delete cascade อยู่แล้ว ลบใบเดียวพอ
+  // ต้อง select กลับมาด้วย เพราะ RLS ที่ไม่ให้ลบจะคืน "ลบ 0 แถว" เฉย ๆ ไม่ใช่ error
+  const { data, error } = await serverClient().from('competitions').delete().eq('id', id).select('id');
+  if (error) return { ok: false, message: describeWriteError(error) };
+  if (!data || data.length === 0) {
+    return { ok: false, message: 'ลบไม่สำเร็จ — ไม่พบประกาศนี้ (อาจถูกลบไปแล้ว) หรือฐานข้อมูลไม่อนุญาตให้ลบ' };
+  }
+
+  revalidateCompetitionViews();
+  return { ok: true, message: 'ลบประกาศแล้ว' };
 }

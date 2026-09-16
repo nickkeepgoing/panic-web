@@ -1,8 +1,14 @@
+import Link from 'next/link';
 import { serverClient } from '@/lib/supabase/server';
 import { daysLeft } from '@/lib/types';
 import { CompetitionForm } from '@/components/CompetitionForm';
+import { DeleteCompetitionButton } from '@/components/DeleteCompetitionButton';
 
 export const dynamic = 'force-dynamic';
+
+const STATUS_TH: Record<string, string> = {
+  draft: 'ร่าง', pending: 'รอตรวจ', published: 'เผยแพร่แล้ว', rejected: 'ตีกลับ', archived: 'เก็บเข้าคลัง',
+};
 
 export default async function AdminCompetitions() {
   const { data } = await serverClient()
@@ -24,15 +30,29 @@ export default async function AdminCompetitions() {
             {rows.map((c) => {
               const left = c.close_at ? daysLeft(c.close_at) : 0;
               return (
-                <li key={c.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 p-4">
-                  <span className="flex-1">
-                    <span className="block text-ink">{c.name}</span>
-                    <span className="text-sm text-muted">{c.organizer}</span>
+                <li key={c.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+                  <span className="min-w-0 flex-1">
+                    <span className="block break-words text-ink">{c.name}</span>
+                    <span className="text-sm text-muted">
+                      {c.organizer || 'ไม่ระบุผู้จัด'} · ปิดรับ {c.close_at}
+                    </span>
                   </span>
-                  <span className="text-sm text-muted">ปิดรับ {c.close_at}</span>
-                  <span className={`text-sm ${left <= 0 ? 'text-muted' : left <= 7 ? 'text-alert' : 'text-brand-deep'}`}>
-                    {left <= 0 ? 'ปิดรับแล้ว' : `เหลือ ${left} วัน`}
-                  </span>
+                  {/* สถานะ วันที่เหลือ และปุ่มจัดการอยู่กลุ่มเดียวกัน จอเล็กจึงตกลงมาเป็นแถวเดียวใต้ชื่อ */}
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <span className={`text-sm ${left <= 0 ? 'text-muted' : left <= 7 ? 'text-alert' : 'text-brand-deep'}`}>
+                      {left <= 0 ? 'ปิดรับแล้ว' : `เหลือ ${left} วัน`}
+                    </span>
+                    <span className="rounded-full bg-brand-light px-2.5 py-0.5 text-xs text-brand-deep">
+                      {STATUS_TH[c.status] ?? c.status}
+                    </span>
+                    <Link
+                      href={`/admin/competitions/${c.id}/edit`}
+                      className="rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:border-brand hover:text-brand-deep"
+                    >
+                      แก้ไข
+                    </Link>
+                    <DeleteCompetitionButton id={c.id} name={c.name} />
+                  </div>
                 </li>
               );
             })}
