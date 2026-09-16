@@ -393,10 +393,16 @@ create policy read_published_comps on competitions
   for select using (status = 'published' or is_admin());
 
 -- เขียนได้เฉพาะแอดมิน (ยกเว้นนักเรียนส่งโครงงานเข้าคิว)
+-- ตารางที่เปิด RLS แล้วแต่ไม่มี policy ฝั่งเขียน = แอดมินก็ insert ไม่ได้
+-- ต้องมีครบทั้ง projects / articles / competitions ไม่ใช่แค่ projects
 create policy admin_write_projects on projects
   for all using (is_admin()) with check (is_admin());
 create policy student_submit_project on projects
   for insert with check (auth.uid() = submitted_by and status = 'pending');
+create policy admin_write_articles on articles
+  for all using (is_admin()) with check (is_admin());
+create policy admin_write_comps on competitions
+  for all using (is_admin()) with check (is_admin());
 
 -- ข้อมูลส่วนตัว: เจ้าของเท่านั้น
 create policy own_profile   on profiles           for all using (id = auth.uid()) with check (id = auth.uid());

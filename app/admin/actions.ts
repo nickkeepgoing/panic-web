@@ -117,33 +117,67 @@ export async function setProjectStatus(formData: FormData) {
   revalidatePath('/projects');
 }
 
-export async function createCompetition(formData: FormData) {
-  if (!(await isAdmin())) throw new Error('ไม่มีสิทธิ์');
+export type CompetitionFormState = { ok: boolean; message: string };
+
+/**
+ * แปลง error จาก Supabase เป็นข้อความที่แอดมินอ่านแล้วแก้ต่อได้
+ * 42501 เกิดบ่อยสุด — ตารางเปิด RLS ไว้แต่ไม่มี policy ฝั่งเขียน
+ */
+function describeWriteError(error: { code?: string; message: string }) {
+  if (error.code === '42501') {
+    return 'ฐานข้อมูลปฏิเสธการบันทึก (RLS) — ยังไม่มี policy ฝั่งเขียนของตาราง competitions ' +
+      'ให้รัน db/migrations/001-competitions-write-policy.sql ใน Supabase SQL Editor หนึ่งครั้ง';
+  }
+  if (error.code === '23505') return 'มีประกาศชื่อนี้อยู่แล้ว ลองเปลี่ยนชื่อให้ต่างจากเดิม';
+  if (error.code === '23502') return 'ข้อมูลไม่ครบตามที่ฐานข้อมูลกำหนด: ' + error.message;
+  return 'บันทึกไม่สำเร็จ: ' + error.message;
+}
+
+export async function createCompetition(
+  _prev: CompetitionFormState,
+  formData: FormData,
+): Promise<CompetitionFormState> {
+  if (!(await isAdmin())) return { ok: false, message: 'ไม่มีสิทธิ์เพิ่มประกาศ — ต้องเป็น editor หรือ super admin' };
+
   const name = String(formData.get('name') ?? '').trim();
   const closeAt = String(formData.get('close_at') ?? '');
-  if (!name || !closeAt) throw new Error('ต้องมีชื่อกิจกรรมและวันปิดรับ');
+  if (!name || !closeAt) return { ok: false, message: 'ต้องมีชื่อกิจกรรมและวันปิดรับ' };
 
   const sb = serverClient();
+  const openAt = String(formData.get('open_at') ?? '') || null;
+  const eventAt = String(formData.get('event_at') ?? '') || null;
+
   const { data, error } = await sb.from('competitions').insert({
     slug: slugify(name),
     name,
     organizer: String(formData.get('organizer') ?? ''),
     source_url: String(formData.get('source_url') ?? ''),
     cover_url: String(formData.get('cover_url') ?? '') || null,
-    open_at: String(formData.get('open_at') ?? '') || null,
+    open_at: openAt,
     close_at: closeAt,
-    event_at: String(formData.get('event_at') ?? '') || null,
+    event_at: eventAt,
     status: 'published',
   }).select('id').single();
-  if (error) throw new Error(error.message);
+
+  if (error) return { ok: false, message: describeWriteError(error) };
+  if (!data) return { ok: false, message: 'บันทึกแล้วแต่ฐานข้อมูลไม่ส่ง id กลับมา ลองโหลดหน้านี้ใหม่เพื่อตรวจสอบ' };
 
   const events = [
-    formData.get('open_at') && { competition_id: data.id, kind: 'open', event_date: String(formData.get('open_at')) },
+    openAt && { competition_id: data.id, kind: 'open', event_date: openAt },
     { competition_id: data.id, kind: 'close', event_date: closeAt },
-    formData.get('event_at') && { competition_id: data.id, kind: 'compete', event_date: String(formData.get('event_at')) },
+    eventAt && { competition_id: data.id, kind: 'compete', event_date: eventAt },
   ].filter(Boolean);
-  await sb.from('competition_events').insert(events as never);
+  // ประกาศบันทึกไปแล้ว หมุดปฏิทินพลาดไม่ควรทำให้ทั้งฟอร์มล้ม แค่บอกให้รู้
+  const { error: eventsError } = await sb.from('competition_events').insert(events as never);
 
   revalidatePath('/admin/competitions');
   revalidatePath('/calendar');
+  revalidatePath('/');
+
+  return {
+    ok: true,
+    message: eventsError
+      ? `บันทึก "${name}" แล้ว แต่ลงหมุดปฏิทินไม่สำเร็จ: ${eventsError.message}`
+      : `บันทึกและเผยแพร่ "${name}" แล้ว`,
+  };
 }
