@@ -1,5 +1,6 @@
 import { hasSupabase } from './supabase/config';
 import { anonClient } from './supabase/server';
+import { TAG_COMPETITIONS, TAG_PROJECTS } from './cache';
 import type { Competition, Project } from './types';
 
 // ------------------------------------------------------------------
@@ -196,12 +197,13 @@ function futureISO(days: number) {
 export async function getProjects(): Promise<Project[]> {
   if (!hasSupabase) return SAMPLE_PROJECTS;
   try {
-    const { data, error } = await anonClient()
+    const { data, error } = await anonClient([TAG_PROJECTS])
       .from('projects')
       .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, categories(name_th), project_tags(tags(slug))')
       .eq('status', 'published')
       .order('published_at', { ascending: false });
-    if (error || !data) return SAMPLE_PROJECTS;
+    // ตกมาใช้ข้อมูลตัวอย่างต้องมีร่องรอยเสมอ ไม่งั้นแอดมินจะงงว่าแก้ในฐานข้อมูลแล้วหน้าเว็บไม่เปลี่ยน
+    if (error || !data) return logDbFallback('getProjects', error, SAMPLE_PROJECTS);
     return data.map(mapProject);
   } catch (e) {
     logDbFailure('getProjects', e);
@@ -232,7 +234,7 @@ export async function getProject(slug: string): Promise<Project | null> {
     'duration_weeks, grade_min, grade_max, purpose_md, difficulty_md, steps, ' +
     'materials, extension_md, cover_url, status, categories(name_th)';
   try {
-    const sb = anonClient();
+    const sb = anonClient([TAG_PROJECTS]);
     const { data } = await sb
       .from('projects')
       .select(cols)
@@ -268,6 +270,16 @@ function logDbFailure(where: string, e: unknown) {
   console.error(`[data] ${where} ต่อ Supabase ไม่ได้ ใช้ข้อมูลตัวอย่างแทน:`, e);
 }
 
+/**
+ * ฐานข้อมูลตอบกลับมาแต่ตอบเป็น error (เช่น view หาย, สิทธิ์ไม่พอ, คอลัมน์ไม่ตรง)
+ * เดิมเงียบสนิทแล้วสลับไปโชว์ข้อมูลตัวอย่างแทน อาการที่เห็นคือ
+ * "ลบในหน้าแอดมินแล้วแต่หน้าแรกยังมีของเดิม" ทั้งที่ของเดิมนั้นคือข้อมูลตัวอย่าง
+ */
+function logDbFallback<T>(where: string, error: { message: string; code?: string } | null, fallback: T): T {
+  console.error(`[data] ${where} อ่านข้อมูลจริงไม่ได้ ใช้ข้อมูลตัวอย่างแทน:`, error?.code ?? '', error?.message ?? 'ไม่มีข้อมูลตอบกลับ');
+  return fallback;
+}
+
 function normNFC(s: string) {
   try { return s.normalize('NFC'); } catch { return s; }
 }
@@ -281,12 +293,12 @@ function matchSlug(stored: string, incoming: string) {
 export async function getCompetitions(): Promise<Competition[]> {
   if (!hasSupabase) return SAMPLE_COMPETITIONS;
   try {
-    const { data, error } = await anonClient()
+    const { data, error } = await anonClient([TAG_COMPETITIONS])
       .from('v_competitions')
       .select('id, slug, name, organizer, close_at, source_url, cover_url')
       .gte('close_at', new Date().toISOString().slice(0, 10))
       .order('close_at');
-    if (error || !data) return SAMPLE_COMPETITIONS;
+    if (error || !data) return logDbFallback('getCompetitions', error, SAMPLE_COMPETITIONS);
     return data as Competition[];
   } catch (e) {
     logDbFailure('getCompetitions', e);

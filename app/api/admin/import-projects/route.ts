@@ -1,6 +1,8 @@
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { serverClient, isAdmin } from '@/lib/supabase/server';
 import { hasSupabase } from '@/lib/supabase/config';
+import { TAG_PROJECTS } from '@/lib/cache';
 import { csvToObjects } from '@/lib/csv';
 import { parseImportRow, isRowIssue, resetSlugTracking, type RowIssue } from '@/lib/import-projects';
 
@@ -138,6 +140,13 @@ export async function POST(request: Request) {
     title: r.payload.title as string,
     status: existingSlugs.has(r.payload.slug as string) ? ('updated' as const) : ('inserted' as const),
   }));
+
+  // นำเข้าเสร็จแล้วต้องล้างแคชเหมือนการเพิ่มทีละรายการ ไม่งั้นหน้าคลังโครงงานกับหน้าแรก
+  // จะยังไม่เห็นของที่เพิ่งนำเข้าจนกว่าจะครบเวลา revalidate ของหน้านั้น
+  revalidateTag(TAG_PROJECTS);
+  revalidatePath('/admin/projects');
+  revalidatePath('/projects');
+  revalidatePath('/');
 
   return NextResponse.json({
     total: records.length,

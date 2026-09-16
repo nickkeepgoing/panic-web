@@ -1,9 +1,32 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { serverClient, isAdmin } from '@/lib/supabase/server';
+import { TAG_COMPETITIONS, TAG_PROJECTS } from '@/lib/cache';
 import { parsePrice } from '@/lib/types';
+
+/**
+ * ล้างแคชหลังเขียนข้อมูล
+ *
+ * ต้องทำสองชั้นเสมอ ไม่งั้นหน้า public จะยังโชว์ของเดิม
+ *  - revalidateTag: ล้าง Data Cache ของผลลัพธ์ fetch ที่หน้า public ใช้อ่าน
+ *  - revalidatePath: ล้างหน้าที่ render ค้างไว้ (หน้าแรก/ปฏิทิน/คลังโครงงาน เป็น ISR 60 วิ)
+ */
+function revalidateProjectViews() {
+  revalidateTag(TAG_PROJECTS);
+  revalidatePath('/admin/projects');
+  revalidatePath('/admin/queue');
+  revalidatePath('/projects');
+  revalidatePath('/');
+}
+
+function revalidateCompetitionViews() {
+  revalidateTag(TAG_COMPETITIONS);
+  revalidatePath('/admin/competitions');
+  revalidatePath('/calendar');
+  revalidatePath('/');
+}
 
 function slugify(input: string) {
   return input
@@ -61,8 +84,7 @@ export async function createProject(formData: FormData) {
   });
   if (error) throw new Error(error.message);
 
-  revalidatePath('/admin/projects');
-  revalidatePath('/projects');
+  revalidateProjectViews();
   redirect('/admin/projects');
 }
 
@@ -95,8 +117,7 @@ export async function updateProject(formData: FormData) {
   }).eq('id', id);
   if (error) throw new Error(error.message);
 
-  revalidatePath('/admin/projects');
-  revalidatePath('/projects');
+  revalidateProjectViews();
   revalidatePath(`/projects/${id}`);
   redirect('/admin/projects');
 }
@@ -112,9 +133,7 @@ export async function setProjectStatus(formData: FormData) {
     reviewed_at: new Date().toISOString(),
   }).eq('id', id);
 
-  revalidatePath('/admin/queue');
-  revalidatePath('/admin/projects');
-  revalidatePath('/projects');
+  revalidateProjectViews();
 }
 
 export type CompetitionFormState = { ok: boolean; message: string };
@@ -187,12 +206,6 @@ export async function createCompetition(
       ? `บันทึก "${fields.name}" แล้ว แต่ลงหมุดปฏิทินไม่สำเร็จ: ${eventsError.message}`
       : `บันทึกและเผยแพร่ "${fields.name}" แล้ว`,
   };
-}
-
-function revalidateCompetitionViews() {
-  revalidatePath('/admin/competitions');
-  revalidatePath('/calendar');
-  revalidatePath('/');
 }
 
 export async function updateCompetition(

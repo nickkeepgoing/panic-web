@@ -19,9 +19,19 @@ export function serverClient() {
   });
 }
 
-/** อ่านอย่างเดียว ไม่มี session — ใช้กับหน้า public ที่ cache ได้ */
-export function anonClient() {
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/**
+ * อ่านอย่างเดียว ไม่มี session — ใช้กับหน้า public ที่ cache ได้
+ *
+ * tags: ติดแท็ก Data Cache ให้ทุก request ที่ยิงผ่าน client ตัวนี้
+ * เพื่อให้หน้าแอดมินสั่ง revalidateTag() ล้างแคชได้ตรงชุดข้อมูลหลังเพิ่ม/แก้/ลบ
+ * ไม่งั้นหน้าแรกกับหน้าปฏิทินจะค้างข้อมูลเดิมจนครบเวลา revalidate ของหน้านั้น
+ */
+export function anonClient(tags: string[] = []) {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, next: { tags } }),
+    },
+  });
 }
 
 export async function getSessionUser() {
