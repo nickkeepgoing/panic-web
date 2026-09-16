@@ -10,6 +10,7 @@ const ADMIN_NAV = [
   { href: '/admin/projects', label: 'คลังโครงงาน' },
   { href: '/admin/competitions', label: 'กิจกรรมแข่งขัน' },
   { href: '/admin/queue', label: 'คิวตรวจอนุมัติ' },
+  { href: '/admin/analytics', label: 'Analytics' },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

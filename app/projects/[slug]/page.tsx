@@ -15,7 +15,20 @@ export const dynamic = 'force-dynamic';
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const project = await getProject(params.slug);
   if (!project) notFound();
-  if (hasSupabase) void anonClient().rpc('increment_view_count', { pid: project.id });
+  if (hasSupabase) {
+    void anonClient().rpc('increment_view_count', { pid: project.id });
+    // บันทึก PROJECT_VIEW event สำหรับ analytics (ใช้ session cookie ถ้ามี)
+    const { cookies } = await import('next/headers');
+    const sessionId = cookies().get('panic_session_id')?.value;
+    if (sessionId) {
+      anonClient().from('events').insert({
+        session_id: sessionId,
+        event_type: 'PROJECT_VIEW',
+        page: `/projects/${project.slug}`,
+        object_id: project.id,
+      }).then(() => {}, () => {});
+    }
+  }
   const c = categoryStyle(project.category);
 
   const meta = [

@@ -6,5 +6,6 @@
 export const NAV = [
   { href: '/projects', label: 'คลังโครงงาน' },
   { href: '/quiz', label: 'แบบทดสอบ' },
+  { href: '/career', label: 'ค้นหาอาชีพ' },
   { href: '/calendar', label: 'ปฏิทินกิจกรรม' },
 ] as const;
