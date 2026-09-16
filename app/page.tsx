@@ -292,7 +292,7 @@ function Step({ n, title, detail }: { n: number; title: string; detail: string }
       {/* brand accent bar on left */}
       <div className="absolute left-0 top-0 h-full w-[3px] rounded-r-full bg-brand" aria-hidden />
       {/* large watermark number */}
-      <span className="font-display text-6xl font-bold leading-none text-brand/10 select-none" aria-hidden>
+      <span className="font-display text-6xl font-bold leading-none text-brand/30 select-none" aria-hidden>
         {n}
       </span>
       <h3 className="font-display text-base font-bold text-ink sm:text-lg">{title}</h3>
