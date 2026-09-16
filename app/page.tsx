@@ -146,9 +146,9 @@ export default async function HomePage() {
               <li key={name} className="flex">
                 <Link
                   href={`/projects?cat=${encodeURIComponent(name)}`}
-                  className="flex w-full flex-col gap-3 overflow-hidden rounded-card border border-line bg-surface p-4 transition duration-200 hover:border-brand hover:shadow-lift"
+                  className="flex w-full flex-col gap-3 overflow-hidden rounded-card border border-line bg-surface p-4 transition duration-200 hover:-translate-y-1 hover:border-brand hover:shadow-lift"
                 >
-                  <span className={`grid h-11 w-11 place-items-center rounded-lg font-display text-base font-bold text-white ${c.bar}`} aria-hidden>
+                  <span className={`grid h-12 w-12 place-items-center rounded-xl font-display text-lg font-bold text-white ${c.bar}`} aria-hidden>
                     {c.abbr}
                   </span>
                   <span className="font-display font-semibold text-ink">{name}</span>
@@ -225,7 +225,7 @@ export default async function HomePage() {
       {/* ─── ปิดท้ายด้วยปุ่มอีกครั้ง ──────────────────────────────────
           คนที่เลื่อนมาถึงล่างสุดคือคนที่สนใจที่สุด แต่หน้าเดิมปล่อยให้ชนฟุตเตอร์
           โดยไม่มีอะไรให้กดต่อ ต้องเลื่อนกลับขึ้นไปบนสุดเอง */}
-      <section className="rounded-card border border-line bg-surface px-6 py-10 text-center sm:px-10 sm:py-12">
+      <section className="grid-paper rounded-card border border-line bg-surface px-6 py-10 text-center sm:px-10 sm:py-12">
         <div className="mx-auto flex max-w-lg flex-col items-center gap-5">
           <h2 className="font-display text-2xl font-bold text-ink sm:text-3xl">
             ยังเลือกไม่ถูกใช่ไหม

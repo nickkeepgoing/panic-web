@@ -28,7 +28,7 @@ export function CompetitionCard({ competition }: { competition: Competition }) {
     <article
       className={`group flex w-full flex-col overflow-hidden rounded-card border bg-surface transition duration-200 ${
         urgent ? 'border-alert/40' : 'border-line'
-      } ${closed ? 'opacity-70' : ''} ${href ? 'hover:border-brand hover:shadow-lift' : ''}`}
+      } ${closed ? 'opacity-70' : ''} ${href ? 'hover:-translate-y-1 hover:border-brand hover:shadow-lift' : ''}`}
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden">
         {poster ? (

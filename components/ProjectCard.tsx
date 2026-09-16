@@ -9,7 +9,7 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface transition duration-200 hover:border-brand hover:shadow-lift"
+      className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface transition duration-200 hover:-translate-y-1 hover:border-brand hover:shadow-lift"
     >
       {project.cover_url ? (
         <div className="relative h-40 w-full overflow-hidden bg-ground">
@@ -25,7 +25,9 @@ export function ProjectCard({ project }: { project: Project }) {
           </span>
         </div>
       ) : (
-        <span className={`h-1.5 w-full ${c.bar}`} aria-hidden />
+        <div className={`relative flex h-36 items-center justify-center overflow-hidden ${c.bar}`} aria-hidden>
+          <span className="select-none font-display text-8xl font-bold text-white/20">{c.abbr}</span>
+        </div>
       )}
 
       <div className="flex flex-1 flex-col gap-2 p-5">
