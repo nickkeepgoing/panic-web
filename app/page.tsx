@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getCompetitions, getProjects } from '@/lib/data';
 import { ProjectCard } from '@/components/ProjectCard';
 import { CompetitionCard } from '@/components/CompetitionCard';
+import { CategoryIcon } from '@/components/CategoryIcon';
 import { CATEGORY_ORDER, categoryStyle } from '@/lib/categories';
 import { daysLeft } from '@/lib/types';
 
@@ -168,7 +169,7 @@ export default async function HomePage() {
           ═══════════════════════════════════════════════════════════════ */}
       <section className="flex flex-col gap-5">
         <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">เลือกจากสายที่ชอบ</h2>
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
           {CATEGORY_ORDER.map((name) => {
             const c = categoryStyle(name);
             const count = projects.filter((p) => p.category === name).length;
@@ -176,10 +177,11 @@ export default async function HomePage() {
               <li key={name} className="flex">
                 <Link
                   href={`/projects?cat=${encodeURIComponent(name)}`}
-                  className="group flex w-full flex-col gap-3 overflow-hidden rounded-2xl border border-line bg-surface p-4 transition-all duration-200 hover:-translate-y-1 hover:border-brand hover:shadow-lift"
+                  className="group flex w-full flex-col gap-3 overflow-hidden rounded-2xl border border-line bg-surface p-5 transition-all duration-200 hover:-translate-y-1 hover:border-brand hover:shadow-lift"
                 >
-                  <span className={`grid h-12 w-12 place-items-center rounded-xl font-display text-lg font-bold text-white transition-transform duration-200 group-hover:scale-110 ${c.bar}`} aria-hidden>
-                    {c.abbr}
+                  {/* Cartoon infographic icon บน colored background */}
+                  <span className={`grid h-14 w-14 place-items-center rounded-2xl transition-transform duration-200 group-hover:scale-110 ${c.bar}`} aria-hidden>
+                    <CategoryIcon name={name} className="h-8 w-8" />
                   </span>
                   <span className="font-display font-semibold text-ink">{name}</span>
                   <span className="text-sm text-muted">

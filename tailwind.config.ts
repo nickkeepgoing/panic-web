@@ -17,11 +17,14 @@ const config: Config = {
         brand: { DEFAULT: '#E03578', deep: '#C22367', light: 'var(--color-brand-light)' },
 
         // ─── Category colors (vibrant, readable on both modes) ───────
-        sci:  '#7C5FFF',
-        tech: '#22A6D4',
-        engr: '#E07800',
-        envi: '#18A870',
-        soci: '#C844B0',
+        sci:    '#7C5FFF',
+        tech:   '#22A6D4',
+        engr:   '#E07800',
+        envi:   '#18A870',
+        soci:   '#C844B0',
+        health: '#E63946',
+        agri:   '#65A30D',
+        arts:   '#8B5CF6',
 
         alert: '#F04455',
       },
