@@ -199,7 +199,7 @@ export async function getProjects(): Promise<Project[]> {
   try {
     const { data, error } = await anonClient([TAG_PROJECTS])
       .from('projects')
-      .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, categories(name_th), project_tags(tags(slug))')
+      .select('id, slug, title, summary, difficulty, budget_min, budget_max, duration_weeks, grade_min, grade_max, cover_url, save_count, categories(name_th), project_tags(tags(slug))')
       .eq('status', 'published')
       .order('published_at', { ascending: false });
     // ตกมาใช้ข้อมูลตัวอย่างต้องมีร่องรอยเสมอ ไม่งั้นแอดมินจะงงว่าแก้ในฐานข้อมูลแล้วหน้าเว็บไม่เปลี่ยน
@@ -232,7 +232,7 @@ export async function getProject(slug: string): Promise<Project | null> {
   const cols =
     'id, slug, title, summary, category_id, difficulty, budget_min, budget_max, ' +
     'duration_weeks, grade_min, grade_max, purpose_md, difficulty_md, steps, ' +
-    'materials, extension_md, cover_url, status, categories(name_th)';
+    'materials, extension_md, cover_url, save_count, status, categories(name_th)';
   try {
     const sb = anonClient([TAG_PROJECTS]);
     const { data } = await sb

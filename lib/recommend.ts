@@ -110,11 +110,12 @@ function score(profile: QuizProfile, p: Project): Recommendation {
   return { project: p, overall, factors, hits, reason: buildReason(profile, p, factors, hits), scopeHint: buildScopeHint(profile, p, factors) };
 }
 
-/** จัดอันดับโครงงานทั้งหมด — ไม่ตัดทิ้ง คืนเรียงจากคะแนนสูงสุด */
+/** จัดอันดับโครงงานทั้งหมด — ไม่ตัดทิ้ง คืนเรียงจากคะแนนสูงสุด
+ *  เมื่อคะแนนเท่ากัน ให้โครงงานที่ถูกบันทึกมากกว่าได้อันดับสูงกว่า (popularity tiebreaker) */
 export function recommend(profile: QuizProfile, projects: Project[], limit = 6): Recommendation[] {
   return projects
     .map((p) => score(profile, p))
-    .sort((a, b) => b.overall - a.overall)
+    .sort((a, b) => b.overall - a.overall || (b.project.save_count ?? 0) - (a.project.save_count ?? 0))
     .slice(0, limit);
 }
 

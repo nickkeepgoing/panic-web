@@ -20,6 +20,7 @@ export type Project = {
   steps?: { step: number; title: string; detail: string }[];
   materials?: { name: string; qty: string; est_price: number }[];
   extension_md?: string;
+  save_count?: number;
 };
 
 export type Competition = {

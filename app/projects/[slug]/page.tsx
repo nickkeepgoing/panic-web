@@ -5,6 +5,8 @@ import { getProject } from '@/lib/data';
 import { DIFFICULTY_TH, budgetLabel, gradeLabel, priceLabel } from '@/lib/types';
 import { categoryStyle } from '@/lib/categories';
 import { SaveButton } from '@/components/SaveButton';
+import { hasSupabase } from '@/lib/supabase/config';
+import { anonClient } from '@/lib/supabase/server';
 
 // ดึงข้อมูลสดจากฐานข้อมูลทุกครั้ง ไม่ล็อกรายชื่อ slug ไว้ตั้งแต่ตอน build
 // มิฉะนั้นโครงงานที่แอดมินเพิ่มใหม่ (ยังไม่มีตอน build) จะขึ้น 404
@@ -13,6 +15,7 @@ export const dynamic = 'force-dynamic';
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const project = await getProject(params.slug);
   if (!project) notFound();
+  if (hasSupabase) void anonClient().rpc('increment_view_count', { pid: project.id });
   const c = categoryStyle(project.category);
 
   const meta = [

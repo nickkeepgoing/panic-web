@@ -16,6 +16,7 @@ export async function POST(request: Request) {
 
   if (action === 'remove') {
     await sb.from('saved_projects').delete().eq('user_id', auth.user.id).eq('project_id', projectId);
+    void sb.rpc('adjust_save_count', { pid: projectId, delta: -1 });
     return NextResponse.json({ saved: false });
   }
 
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
   }
 
   // RLS บังคับอยู่แล้วว่า user_id ต้องเป็นตัวเอง ปลอมส่งของคนอื่นมาไม่ได้
-  await sb.from('saved_projects').upsert({ user_id: auth.user.id, project_id: projectId });
+  const { error } = await sb.from('saved_projects').upsert({ user_id: auth.user.id, project_id: projectId });
+  if (!error) void sb.rpc('adjust_save_count', { pid: projectId, delta: 1 });
   return NextResponse.json({ saved: true });
 }
