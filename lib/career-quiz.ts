@@ -1,45 +1,95 @@
-// Career & Interest Discovery Quiz — 22 ข้อ
+// Career & Interest Discovery Quiz — v2 — 27 ข้อ
 //
-// อ้างอิงงานวิจัย:
-//   Holland (1959, 1997) — RIASEC Interest Theory
-//   Super (1970) — Work Values Inventory
-//   Gardner (1983) — Multiple Intelligences
-//   Csikszentmihalyi (1990) — Flow State (บ่งบอก genuine interest)
+// ─── กรอบวิจัย ───────────────────────────────────────────────────────────────
 //
-// หลักการ: ถามจากพฤติกรรมและสถานการณ์จริง ไม่ถามตรงว่า "อยากเป็นอะไร"
-// เพราะคนส่วนใหญ่ยังไม่รู้ว่าตัวเองอยากเป็นอะไร แต่รู้ว่าชอบทำอะไร
+//   Holland (1959, 1997)         RIASEC Interest Theory
+//     → โครงสร้างหลักของ 6 ประเภทบุคลิก (R-I-A-S-E-C)
+//     → craft≈R, science≈I, creative≈A, helping≈S, business≈E, data/law≈C
+//     → หลักการ: วัดจากกิจกรรมที่ทำจริง ไม่ใช่อาชีพที่อยากเป็น
 //
-// Dimensions 10 ตัวถูก map จาก RIASEC ดังนี้:
-//   R (Realistic)    → craft, nature
-//   I (Investigative)→ science, data, tech
-//   A (Artistic)     → creative, media
-//   S (Social)       → helping
-//   E (Enterprising) → business, media
-//   C (Conventional) → data, law
+//   Super (1970, 1990)            Work Values Inventory
+//     → ค่านิยมงาน: ความสำเร็จ, อิสระ, ความหลากหลาย, ความมั่นคง,
+//       การช่วยเหลือ, สุนทรียะ, ชื่อเสียง, สภาพแวดล้อม
+//     → คำถามเรื่องความหมาย ค่านิยม และมรดกที่ทิ้งไว้
+//
+//   Csikszentmihalyi (1990)       Flow Theory
+//     → กิจกรรมที่ทำให้เกิด flow = ความสนใจที่แท้จริงที่แม่นยำที่สุด
+//     → ถามว่า "เมื่อไหร่ที่คุณลืมเวลา" ไม่ใช่ "คุณชอบอะไร"
+//
+//   Deci & Ryan (1985)            Self-Determination Theory
+//     → แรงจูงใจภายใน (intrinsic) ทำนายความพึงพอใจในงานได้ดีกว่าภายนอก
+//     → ถามว่า "อะไรที่ทำโดยไม่ต้องการรางวัล"
+//
+//   Lent, Brown & Hackett (1994)  Social Cognitive Career Theory (SCCT)
+//     → self-efficacy + กิจกรรมที่สนุก → ความสนใจ → เป้าหมาย
+//     → ถามทั้ง "คุณทำอะไรได้ดี" และ "อะไรที่คนอื่นมักขอความช่วยเหลือ"
+//
+//   Savickas (2005)               Career Construction Theory
+//     → career adaptability: ความกังวล, ความอยากรู้, ความมั่นใจ
+//     → ถามเรื่องการรับมือกับสิ่งที่ไม่รู้จัก และการตอบสนองต่อความท้าทาย
+//
+//   Budner (1962)                 Tolerance for Ambiguity
+//     → ทนต่อความคลุมเครือได้สูง → เหมาะกับงานวิจัย, สร้างสรรค์, ผู้ประกอบการ
+//     → ทนได้ต่ำ → เหมาะกับงานที่มีขั้นตอนชัดเจน, กฎ, มาตรฐาน
+//
+//   Kristof (1996)                Person-Environment Fit
+//     → การจับคู่ค่านิยม + สภาพแวดล้อมทำนายความพึงพอใจดีกว่าทักษะอย่างเดียว
+//
+// ─── หลักการออกแบบคำถาม ────────────────────────────────────────────────────
+//
+//   1. พฤติกรรม > การระบุความชอบ ("ฉันทำอะไร" > "ฉันชอบอะไร")
+//      เหตุผล: behavioral questions ลด social desirability bias (Campion et al. 1994)
+//
+//   2. สถานการณ์จริง > นามธรรม ("เมื่อเจอสถานการณ์ X" > "คุณชอบ X ไหม")
+//      เหตุผล: situational questions predict real behavior better (Hartung 2011)
+//
+//   3. ไม่ระบุชื่ออาชีพ สาขา หรืออุตสาหกรรมในคำถามหรือตัวเลือกใด
+//      เหตุผล: ป้องกัน confirmation bias — ค้นพบ "คน" ก่อน แล้วจึง map ไปอาชีพ
+//
+//   4. ตัวเลือกทั้ง 4 มีความดึงดูดเท่าๆ กัน ไม่มีคำตอบ "ถูก"
+//      เหตุผล: forced-choice design eliminates acquiescence bias
+//
+//   5. ครอบคลุม 6 มิติชีวิต: การรับรู้, การแก้ปัญหา, สังคม, ค่านิยม, สภาพแวดล้อม, อารมณ์
+//
+// ─── Dimension Map ──────────────────────────────────────────────────────────
+//
+//   DimSlug    Holland   ความหมายทางจิตวิทยา
+//   ─────────  ────────  ─────────────────────────────────────────────────────
+//   craft      R         ทักษะมือ, สร้างงาน, จับต้องได้, ซ่อมแซม
+//   tech       R+I       ตรรกะเชิงระบบ, กลไก, วิศวกรรมประยุกต์
+//   science    I         ความอยากรู้ที่ลึก, วิเคราะห์, ค้นหาความจริง
+//   creative   A         การแสดงออก, จินตนาการ, สุนทรียะ
+//   helping    S         การดูแล, สอน, เชื่อมต่อ, เห็นอกเห็นใจ
+//   business   E         ริเริ่ม, ผู้นำ, โน้มน้าว, สร้างโอกาส
+//   data       C         ระเบียบ, แม่นยำ, ขั้นตอน, วิธีการ
+//   law        C+S       ความยุติธรรม, กฎ, โครงสร้างสังคม
+//   nature     R ext.    ความผูกพันกับธรรมชาติ, สิ่งมีชีวิต
+//   media      A+S       การสื่อสาร, เล่าเรื่อง, สร้างความหมายร่วม
 
 export type DimSlug =
-  | 'tech'      // เทคโนโลยี
-  | 'science'   // วิทยาศาสตร์
-  | 'creative'  // ความคิดสร้างสรรค์
-  | 'helping'   // การช่วยเหลือดูแล
-  | 'business'  // ธุรกิจและบริหาร
-  | 'nature'    // ธรรมชาติสิ่งแวดล้อม
-  | 'data'      // ข้อมูลและตัวเลข
-  | 'law'       // กฎระเบียบและสังคม
-  | 'craft'     // งานช่างและฝีมือ
-  | 'media';    // สื่อและการสื่อสาร
+  | 'tech'      // ตรรกะเชิงระบบ
+  | 'science'   // ความสงสัยใคร่รู้
+  | 'creative'  // การแสดงออกเชิงสร้างสรรค์
+  | 'helping'   // การดูแลและเชื่อมต่อ
+  | 'business'  // ความคิดริเริ่มและภาวะผู้นำ
+  | 'nature'    // ความผูกพันกับธรรมชาติ
+  | 'data'      // ความแม่นยำและการจัดระเบียบ
+  | 'law'       // ความยุติธรรมและโครงสร้าง
+  | 'craft'     // ทักษะมือและการสร้างงาน
+  | 'media';    // การสื่อสารและการเล่าเรื่อง
 
+// Labels ที่แสดงผู้ใช้ — ภาษาลักษณะบุคคล ไม่ใช่ชื่อสาขาวิชา
 export const DIM_LABELS: Record<DimSlug, string> = {
-  tech:     'เทคโนโลยี',
-  science:  'วิทยาศาสตร์',
-  creative: 'ความคิดสร้างสรรค์',
-  helping:  'การดูแลช่วยเหลือ',
-  business: 'ธุรกิจและบริหาร',
-  nature:   'ธรรมชาติ',
-  data:     'ข้อมูลและตัวเลข',
-  law:      'กฎหมายและสังคม',
-  craft:    'งานช่างและฝีมือ',
-  media:    'สื่อและการสื่อสาร',
+  tech:     'ตรรกะเชิงระบบ',
+  science:  'ความสงสัยใคร่รู้',
+  creative: 'การแสดงออกเชิงสร้างสรรค์',
+  helping:  'การดูแลและเชื่อมต่อ',
+  business: 'ความคิดริเริ่มและภาวะผู้นำ',
+  nature:   'ความผูกพันกับธรรมชาติ',
+  data:     'ความแม่นยำและการจัดระเบียบ',
+  law:      'ความยุติธรรมและโครงสร้าง',
+  craft:    'ทักษะมือและการสร้างงาน',
+  media:    'การสื่อสารและการเล่าเรื่อง',
 };
 
 export const ALL_DIMS: DimSlug[] = Object.keys(DIM_LABELS) as DimSlug[];
@@ -71,9 +121,21 @@ type CareerQuizQuestion = {
   options: CareerQuizOption[];
 };
 
-// ─── 22 Questions ────────────────────────────────────────────────────────────
-// อิง Holland RIASEC + Super Work Values + Gardner Multiple Intelligences
-// ทุกคำถามถามจากพฤติกรรมและสถานการณ์จริง ไม่ถามว่าอยากเป็นอะไร
+// ─── 27 Questions ────────────────────────────────────────────────────────────
+//
+// v2 design: ค้นพบ "คน" ก่อน แล้วจึง map ไปอาชีพ
+// ทุกคำถามถามจากพฤติกรรม สถานการณ์จริง และสัญญาณจากชีวิต
+// ไม่มีคำถามหรือตัวเลือกใดที่ระบุชื่ออาชีพหรือสาขาวิชา
+//
+// หมวดหมู่คำถาม:
+//   Q2–Q4   : สัญญาณการมีส่วนร่วม (Flow / Engagement)
+//   Q5–Q8   : รูปแบบการคิดและการเรียนรู้
+//   Q9–Q11  : รูปแบบสังคมและการทำงานร่วมกัน
+//   Q12–Q14 : แรงจูงใจและค่านิยม
+//   Q15–Q17 : สิ่งที่ดึงดูดความสนใจในโลก
+//   Q18–Q21 : สภาพแวดล้อมและการตัดสินใจ
+//   Q22–Q25 : อัตลักษณ์และความภาคภูมิใจ
+//   Q26–Q27 : ความสัมพันธ์กับโลกธรรมชาติและสังคม
 
 export const CAREER_QUIZ: CareerQuizQuestion[] = [
 
@@ -90,297 +152,386 @@ export const CAREER_QUIZ: CareerQuizQuestion[] = [
     ],
   },
 
-  // ── Q2: กิจกรรมยามว่าง ─────────────────────────────────────────────────
-  // Holland: กิจกรรมที่เลือกทำเองบอก genuine interest ได้ดีที่สุด
+  // ── Q2: สัญญาณ Flow — ความสนใจที่แท้จริง ────────────────────────────────
+  // Csikszentmihalyi (1990): กิจกรรมที่ทำให้เกิด flow = genuine interest
+  // วัดจากพฤติกรรมจริง ไม่ใช่การระบุความชอบ
   {
-    id: 'freetime',
+    id: 'attention_drift',
     kind: 'interest',
-    question: 'วันหยุดที่ไม่มีการบ้าน คุณมักทำอะไรโดยไม่รู้สึกว่าเป็นงาน?',
-    helper: 'เลือกสิ่งที่ทำแล้วรู้สึกสนุกและเวลาผ่านไปเร็ว',
+    question: 'เมื่อมีเวลาว่างอย่างแท้จริง ไม่มีใครคาดหวังอะไร ความคิดของคุณมักล่องลอยไปทางไหน?',
+    helper: 'ไม่ต้องคิดมาก — นึกถึงสิ่งที่เกิดขึ้นจริงโดยอัตโนมัติ',
     options: [
-      { id: 'ft-make',  label: 'ซ่อมของ ประกอบโมเดล ต่อวงจร หรือทำของด้วยมือ',      weights: { craft: 3, tech: 2 } },
-      { id: 'ft-art',   label: 'วาดรูป ถ่ายภาพ แต่งเพลง หรือสร้างสรรค์งานศิลปะ',    weights: { creative: 3, media: 2 } },
-      { id: 'ft-read',  label: 'อ่านหนังสือ ดูสารคดี หรือหาข้อมูลเรื่องที่สนใจ',    weights: { science: 2, data: 2, tech: 1 } },
-      { id: 'ft-hang',  label: 'ชวนเพื่อน จัดกิจกรรม หรือพูดคุยกับคนรอบข้าง',       weights: { helping: 2, business: 2, media: 1 } },
+      { id: 'ad-make',    label: 'คิดถึงสิ่งที่อยากสร้าง ประกอบ ซ่อม หรือผลิตด้วยมือตัวเอง',            weights: { craft: 3, tech: 2 } },
+      { id: 'ad-why',     label: 'สงสัยเรื่องที่ยังไม่รู้คำตอบ อยากค้นหาว่า "ทำไม" หรือ "เกิดขึ้นได้อย่างไร"', weights: { science: 3, data: 1 } },
+      { id: 'ad-people',  label: 'นึกถึงคนอื่น อยากช่วย ดูแล หรือทำให้ใครสักคนรู้สึกดีขึ้น',             weights: { helping: 3, media: 1 } },
+      { id: 'ad-express', label: 'อยากแสดงออกบางสิ่ง ผ่านเรื่องราว ภาพ เสียง หรือรูปแบบใดก็ได้',          weights: { creative: 3, media: 2 } },
     ],
   },
 
-  // ── Q3: บทบาทในบ้าน ──────────────────────────────────────────────────────
-  // Holland R+S: สิ่งที่ทำในบ้านสะท้อน natural role ที่แท้จริง
+  // ── Q3: ความสนใจที่ลึก — สัญญาณ Investigative (Holland I) ───────────────
+  // Holland: หัวข้อที่ค้นหาโดยไม่มีใครบอกบ่งบอก genuine intellectual interest
   {
-    id: 'home-role',
+    id: 'what_fascinates',
     kind: 'interest',
-    question: 'ในบ้านหรือครอบครัว คุณมักเป็นคนที่ทำอะไร?',
+    question: 'หัวข้อแบบไหนที่ทำให้คุณดูดิ่ง ลืมเวลา แม้ไม่มีใครบอกให้ไปค้นหา?',
     options: [
-      { id: 'hr-fix',   label: 'ช่วยซ่อมของ ดูแลอุปกรณ์ หรือจัดการสิ่งของในบ้าน',  weights: { craft: 3, tech: 2 } },
-      { id: 'hr-care',  label: 'ดูแลน้อง ช่วยเหลือผู้ใหญ่ หรือให้กำลังใจคนในบ้าน', weights: { helping: 3, media: 1 } },
-      { id: 'hr-plan',  label: 'ช่วยวางแผน จัดการค่าใช้จ่าย หรือจัดระเบียบบ้าน',   weights: { data: 3, business: 2, law: 1 } },
-      { id: 'hr-deco',  label: 'ช่วยตกแต่ง คิดเมนูอาหาร หรือทำให้บ้านน่าอยู่ขึ้น', weights: { creative: 3, craft: 1 } },
+      { id: 'wf-systems',  label: 'กลไก ระบบ หรือหลักการที่อธิบายว่าสิ่งต่างๆ ทำงานอย่างไร',          weights: { science: 3, tech: 2 } },
+      { id: 'wf-people',   label: 'ผู้คน ความสัมพันธ์ และเรื่องราวของชีวิตจริง',                       weights: { helping: 2, media: 3 } },
+      { id: 'wf-nature',   label: 'สิ่งมีชีวิต สภาพแวดล้อม และโลกธรรมชาติรอบตัวเรา',                 weights: { nature: 3, science: 2 } },
+      { id: 'wf-patterns', label: 'รูปแบบ ตัวเลข หรือโครงสร้างที่ซ่อนอยู่ในสิ่งที่ดูเหมือนไม่มีความหมาย', weights: { data: 3, science: 2 } },
     ],
   },
 
-  // ── Q4: เงิน 500 บาท ─────────────────────────────────────────────────────
-  // Super Work Values: การใช้เงินบอก underlying value ได้ชัดมาก
+  // ── Q4: Flow state — กิจกรรมที่ทำให้ "อยู่กับมัน" ────────────────────────
+  // Csikszentmihalyi: ถามสัญญาณ flow ที่ชัดเจน ไม่ใช่การถามความชอบทั่วไป
   {
-    id: 'money',
+    id: 'flow_activity',
     kind: 'interest',
-    question: 'ถ้าได้รับเงิน 500 บาทมาฟรีๆ สิ่งแรกที่นึกถึงคือ...',
+    question: 'กิจกรรมแบบไหนที่ทำให้คุณรู้สึก "อยู่กับมัน" อย่างสมบูรณ์ จนลืมเวลาและสิ่งรอบข้าง?',
     options: [
-      { id: 'mo-invest', label: 'เก็บออมหรือหาวิธีทำให้เงินนั้นงอกเงย',             weights: { business: 3, data: 2 } },
-      { id: 'mo-buy',    label: 'ซื้อวัสดุมาทำโปรเจกต์ ประดิษฐ์ หรือทดลอง',        weights: { craft: 3, science: 2 } },
-      { id: 'mo-learn',  label: 'ลงทุนกับการเรียนรู้ เช่น หนังสือหรือคอร์สใหม่',    weights: { science: 2, data: 2, tech: 1 } },
-      { id: 'mo-share',  label: 'ใช้กับการสร้างความสุขให้คนรอบข้างหรือช่วยคนอื่น',  weights: { helping: 3, media: 1 } },
+      { id: 'fa-build',   label: 'ค่อยๆ สร้างหรือแก้ไขบางอย่างด้วยมือ และเห็นมันเปลี่ยนแปลงไปทีละนิด', weights: { craft: 3, tech: 2 } },
+      { id: 'fa-analyze', label: 'คิดวิเคราะห์ปัญหาซับซ้อน แล้วค่อยๆ เห็นรูปแบบหรือคำตอบชัดขึ้น',        weights: { science: 2, data: 3 } },
+      { id: 'fa-teach',   label: 'อธิบาย ถ่ายทอด หรือสอนบางอย่างจนคนอื่นเข้าใจจริงๆ',                  weights: { helping: 3, media: 2 } },
+      { id: 'fa-create',  label: 'สร้างสรรค์งานที่แสดงออกถึงสิ่งที่รู้สึกหรือมองเห็น',                   weights: { creative: 3, craft: 1 } },
     ],
   },
 
-  // ── Q5: วิชาที่ถนัด ──────────────────────────────────────────────────────
+  // ── Q5: สัญชาตญาณต่อสิ่งผิดปกติ ─────────────────────────────────────────
+  // SCCT: self-efficacy แสดงออกผ่านสิ่งที่ทำเมื่อไม่มีใครบอก
+  // Investigative vs Realistic vs Social responses
   {
-    id: 'subject',
+    id: 'problem_instinct',
     kind: 'interest',
-    question: 'วิชาไหนที่คุณรู้สึกว่าทำได้ดีโดยไม่ต้องพยายามมาก?',
+    question: 'เมื่อเห็นบางอย่างที่ดูผิดปกติหรือไม่ทำงานถูกต้อง สัญชาตญาณแรกของคุณคืออะไร?',
     options: [
-      { id: 'sub-sci',  label: 'คณิตศาสตร์ วิทยาศาสตร์ หรือฟิสิกส์',               weights: { science: 3, data: 2, tech: 1 } },
-      { id: 'sub-lang', label: 'ภาษาไทย ภาษาอังกฤษ หรือสังคมศึกษา',                weights: { media: 2, law: 2, helping: 1 } },
-      { id: 'sub-art',  label: 'ศิลปะ ดนตรี หรือพลศึกษา',                           weights: { creative: 3, craft: 2 } },
-      { id: 'sub-comp', label: 'คอมพิวเตอร์ งานเทคนิค หรือการงานอาชีพ',             weights: { tech: 3, craft: 2, data: 1 } },
+      { id: 'pi-analyze', label: 'อยากแยกแยะ ค้นหา และเข้าใจว่า "สาเหตุที่แท้จริง" คืออะไร',            weights: { science: 3, data: 2 } },
+      { id: 'pi-fix',     label: 'อยากลองแตะ ปรับ หรือแก้ไขมันทันทีด้วยมือตัวเอง',                     weights: { craft: 3, tech: 2 } },
+      { id: 'pi-ask',     label: 'อยากถามคนที่เกี่ยวข้องว่ารู้สึกอย่างไรกับสิ่งที่เกิดขึ้น',             weights: { helping: 2, media: 2, law: 1 } },
+      { id: 'pi-invent',  label: 'อยากสร้างวิธีแก้ใหม่ที่ไม่เหมือนวิธีที่คนอื่นเคยลอง',                 weights: { creative: 3, business: 2 } },
     ],
   },
 
-  // ── Q6: บทบาทในงานกลุ่ม ─────────────────────────────────────────────────
-  // Holland E+S: social role เป็นตัวบ่งชี้ที่แม่นยำมาก
+  // ── Q6: การรับมือกับความคลุมเครือ ────────────────────────────────────────
+  // Budner (1962): tolerance for ambiguity ทำนาย Holland type ได้ชัดมาก
+  // Savickas: career adaptability วัดจากการตอบสนองต่อสิ่งที่ไม่รู้จัก
   {
-    id: 'group-role',
+    id: 'unknown_territory',
     kind: 'interest',
-    question: 'ในงานกลุ่ม คุณมักรับบทบาทอะไรโดยธรรมชาติ?',
+    question: 'เมื่อต้องทำงานโดยไม่มีคู่มือ ไม่มีแบบอย่าง และไม่รู้ว่าผลจะออกมาอย่างไร คุณรู้สึกอย่างไร?',
     options: [
-      { id: 'gr-lead',   label: 'ผู้นำ วางแผน แบ่งงาน และผลักดันให้ทีมเดินหน้า',     weights: { business: 3, law: 1, media: 1 } },
-      { id: 'gr-do',     label: 'คนลงมือทำจริง ผลิตผลงาน หรือแก้ปัญหาเทคนิค',       weights: { craft: 3, tech: 2 } },
-      { id: 'gr-bridge', label: 'คนกลาง ประสาน ทำให้ทุกคนทำงานร่วมกันได้',           weights: { helping: 3, media: 2 } },
-      { id: 'gr-create', label: 'คนออกแบบ นำเสนอ หรือสร้างสรรค์ผลงาน',              weights: { creative: 3, media: 2 } },
+      { id: 'ut-thrive',    label: 'ตื่นเต้น — นี่คือพื้นที่ที่ทำให้ตัวเองคิดได้ดีที่สุด',              weights: { creative: 2, science: 2, business: 1 } },
+      { id: 'ut-structure', label: 'ไม่สบายใจเล็กน้อย แต่ทันทีที่สร้างโครงสร้างของตัวเองได้ ก็เดินหน้าต่อ', weights: { data: 3, law: 2 } },
+      { id: 'ut-consult',   label: 'มองหาคนที่ผ่านสถานการณ์คล้ายกันมาก่อน แล้วเรียนรู้จากเขา',           weights: { helping: 1, science: 1, business: 2 } },
+      { id: 'ut-dive',      label: 'ดำดิ่งเข้าไปเลย ลองผิดลองถูก แล้วค่อยปรับทีหลัง',                   weights: { craft: 2, tech: 2, creative: 1 } },
     ],
   },
 
-  // ── Q7: โปรเจกต์ในฝัน ───────────────────────────────────────────────────
+  // ── Q7: ความรู้สึกสำเร็จที่ลึกที่สุด ────────────────────────────────────
+  // Super: peak experience บอก core values และ genuine abilities
   {
-    id: 'dream-project',
+    id: 'satisfaction_peak',
     kind: 'interest',
-    question: 'ถ้าทำโปรเจกต์ได้โดยไม่มีข้อจำกัด คุณจะทำอะไร?',
+    question: 'ความรู้สึก "ฉันทำสำเร็จ" ที่ลึกที่สุดในชีวิตของคุณมักเกิดขึ้นเมื่อ...',
     options: [
-      { id: 'dp-tech',   label: 'สร้างแอป เว็บ เกม หรือระบบที่คนอื่นใช้ได้จริง',    weights: { tech: 3, data: 2, creative: 1 } },
-      { id: 'dp-sci',    label: 'ทดลองวิทยาศาสตร์หรือวิจัยเรื่องที่อยากรู้',         weights: { science: 3, data: 2 } },
-      { id: 'dp-art',    label: 'สร้างผลงานศิลปะ ภาพยนตร์ เพลง หรือนิทรรศการ',       weights: { creative: 3, media: 2 } },
-      { id: 'dp-help',   label: 'จัดกิจกรรมช่วยเหลือชุมชนหรือแก้ปัญหาสังคม',         weights: { helping: 3, business: 2 } },
+      { id: 'sp-understood', label: 'เข้าใจบางอย่างที่ซับซ้อนจนเห็นภาพรวมชัดเจน',           weights: { science: 3, data: 2 } },
+      { id: 'sp-made',       label: 'สิ่งที่สร้างหรือซ่อมแซมด้วยมือตัวเองออกมาทำงานได้จริง', weights: { craft: 3, tech: 2 } },
+      { id: 'sp-helped',     label: 'ช่วยให้ใครสักคนผ่านพ้นสิ่งที่ยากไปได้',                 weights: { helping: 3, media: 1 } },
+      { id: 'sp-led',        label: 'นำทีมหรือโครงการไปถึงเป้าหมายที่ตั้งไว้',                weights: { business: 3, media: 2 } },
     ],
   },
 
-  // ── Q8: สิ่งที่เพื่อนขอความช่วยเหลือ ────────────────────────────────────
-  // Holland: สิ่งที่คนอื่นขอจาก "เรา" บอก perceived strength ที่แม่นยำ
+  // ── Q8: วิธีเรียนรู้ที่ได้ผลดีที่สุด ────────────────────────────────────
+  // Kolb (1984): learning styles ทำนาย Holland types ได้
+  // R → experiential, I → reflective, A → diverger, C → assimilator
   {
-    id: 'friend-help',
+    id: 'learning_mode',
     kind: 'interest',
-    question: 'เพื่อนมักขอความช่วยเหลือจากคุณเรื่องอะไร?',
+    question: 'เมื่อต้องเรียนรู้ทักษะหรือแนวคิดใหม่ที่ยาก คุณเรียนรู้ได้เร็วที่สุดเมื่อ...',
     options: [
-      { id: 'fh-tech',   label: 'แก้ปัญหาคอมพิวเตอร์ โทรศัพท์ หรืออุปกรณ์ต่างๆ',    weights: { tech: 3, craft: 2 } },
-      { id: 'fh-listen', label: 'ฟังปัญหา ให้คำปรึกษา หรือช่วยคิดทางออก',           weights: { helping: 3, media: 1 } },
-      { id: 'fh-design', label: 'ออกแบบงาน ตกแต่ง หรือทำให้สิ่งต่างๆ ดูดีขึ้น',      weights: { creative: 3, media: 2 } },
-      { id: 'fh-plan',   label: 'วางแผน จัดการ หาข้อมูล หรือจัดระเบียบสิ่งต่างๆ',   weights: { data: 2, business: 2, law: 1 } },
+      { id: 'lm-theory', label: 'ศึกษาทฤษฎีและหลักการให้เข้าใจก่อน แล้วจึงลงมือปฏิบัติ', weights: { science: 2, data: 2, law: 1 } },
+      { id: 'lm-do',     label: 'ลองทำทันที เรียนรู้จากข้อผิดพลาดที่เกิดขึ้นจริง',        weights: { craft: 3, tech: 2 } },
+      { id: 'lm-watch',  label: 'ดูหรือฟังคนที่ทำได้ดีก่อน แล้วค่อยลองทำตาม',             weights: { helping: 1, media: 2, craft: 1 } },
+      { id: 'lm-explore',label: 'สำรวจเองอย่างอิสระ ไม่มีเส้นทางตายตัว',                  weights: { creative: 2, science: 2, nature: 1 } },
     ],
   },
 
-  // ── Q9: รับมือปัญหา ───────────────────────────────────────────────────────
-  // Investigative vs Realistic: วิธีรับมือปัญหาบอก thinking style ที่ชัดมาก
+  // ── Q9: บทบาทที่ธรรมชาติดึงไป ───────────────────────────────────────────
+  // Holland: perceived social role = strong predictor (กำหนดโดยคนอื่น ไม่ใช่ตัวเอง)
   {
-    id: 'problem-style',
+    id: 'natural_role',
     kind: 'interest',
-    question: 'เวลาเจอปัญหาหรือสิ่งที่ไม่เข้าใจ คุณมักทำอะไรก่อน?',
+    question: 'ในสถานการณ์กลุ่มที่ต้องร่วมกันแก้ปัญหา คุณมักถูก "ดึง" ไปสู่บทบาทใดโดยธรรมชาติ?',
     options: [
-      { id: 'ps-research', label: 'ค้นหาข้อมูล วิเคราะห์ และแก้ปัญหาแบบเป็นขั้นตอน', weights: { data: 2, science: 2, tech: 1 } },
-      { id: 'ps-try',      label: 'ลองผิดลองถูกด้วยมือ จนกว่าจะเจอวิธีที่ใช้ได้',    weights: { craft: 3, tech: 1 } },
-      { id: 'ps-ask',      label: 'ปรึกษาคนที่ไว้ใจหรือคนที่รู้เรื่องนั้นดีกว่า',   weights: { helping: 2, media: 1 } },
-      { id: 'ps-creative', label: 'มองหาวิธีใหม่ๆ ที่ไม่เคยมีใครลองทำ',             weights: { creative: 3, science: 1 } },
+      { id: 'nr-analyst', label: 'คนที่ตรวจสอบข้อเท็จจริง วิเคราะห์ และบอกว่าเกิดอะไรขึ้นจริง',       weights: { data: 3, science: 2, law: 1 } },
+      { id: 'nr-maker',   label: 'คนที่ลงมือแก้ปัญหาเฉพาะหน้าด้วยทักษะที่ตัวเองมี',                  weights: { craft: 3, tech: 2 } },
+      { id: 'nr-bridge',  label: 'คนที่ดูแลให้ทุกคนรู้สึกว่าตัวเองมีคุณค่าและทำงานร่วมกันได้',         weights: { helping: 3, media: 2 } },
+      { id: 'nr-compass', label: 'คนที่มองภาพรวม ชี้ทิศทาง และผลักดันให้ทีมเดินไปข้างหน้า',           weights: { business: 3, media: 1 } },
     ],
   },
 
-  // ── Q10: บุคลิกในห้องเรียน ──────────────────────────────────────────────
+  // ── Q10: วิธีถ่ายทอดที่ถนัดที่สุด ───────────────────────────────────────
+  // Gardner (1983): Multiple Intelligences — วิธีถ่ายทอดสะท้อน dominant intelligence
   {
-    id: 'classroom',
+    id: 'how_you_explain',
     kind: 'interest',
-    question: 'ในห้องเรียน คุณมักเป็นคนแบบไหน?',
+    question: 'เมื่อต้องทำให้คนอื่นเข้าใจบางอย่างที่ซับซ้อน วิธีที่คุณมักเลือกโดยอัตโนมัติคือ...',
     options: [
-      { id: 'cl-curious', label: 'ชอบถามคำถาม หาเหตุผล และตั้งข้อสังเกต',           weights: { science: 3, data: 2 } },
-      { id: 'cl-quiet',   label: 'เงียบๆ แต่ทำงานออกมาได้ดีและละเอียดเสมอ',         weights: { data: 2, craft: 2, law: 1 } },
-      { id: 'cl-social',  label: 'ชอบช่วยเพื่อน อธิบาย และทำให้ทุกคนเข้าใจด้วยกัน', weights: { helping: 3, media: 2 } },
-      { id: 'cl-talk',    label: 'ชอบแสดงความคิดเห็น นำเสนอ และโน้มน้าวคนอื่น',     weights: { media: 2, business: 2, law: 1 } },
+      { id: 'he-logic',  label: 'อธิบายด้วยตรรกะและโครงสร้างที่ชัดเจน ทีละขั้นตอน',                  weights: { data: 2, law: 2, science: 1 } },
+      { id: 'he-show',   label: 'วาด สาธิต หรือสร้างตัวอย่างที่จับต้องได้ให้เห็นเลย',                  weights: { creative: 2, craft: 3 } },
+      { id: 'he-story',  label: 'เล่าเรื่องหรือยกตัวอย่างที่ทำให้คนอื่นรู้สึกและจำได้',               weights: { media: 3, helping: 2 } },
+      { id: 'he-direct', label: 'พูดตรงๆ สั้น ให้ข้อมูลที่จำเป็น ไม่ประดับประดา',                     weights: { data: 2, business: 2 } },
     ],
   },
 
-  // ── Q11: ช่วยพ่อแม่ทำงาน ─────────────────────────────────────────────────
-  // คำถามนี้ออกแบบมาเพื่อจับ entrepreneurial interest ที่ซ่อนอยู่
-  // เด็กที่ช่วยพ่อแม่ขายของ/ทำธุรกิจ จะแสดงออกผ่านคำถามนี้
+  // ── Q11: สภาพแวดล้อมที่ทำให้ทำงานได้ดีที่สุด ────────────────────────────
+  // Kristof (1996): Person-Environment Fit — setting preference predicts satisfaction
   {
-    id: 'family-work',
+    id: 'best_environment',
     kind: 'interest',
-    question: 'ถ้าต้องช่วยพ่อแม่หรือครอบครัวทำงาน คุณอยากช่วยส่วนไหน?',
-    helper: 'เลือกตามที่รู้สึกว่าถนัดหรือสนใจจริงๆ ไม่มีคำตอบผิด',
+    question: 'สภาพแวดล้อมแบบไหนที่ทำให้คุณทำงานได้ดีที่สุดอย่างสม่ำเสมอ?',
     options: [
-      { id: 'fw-sell',  label: 'ช่วยขายของ คุยกับลูกค้า หรือโปรโมตสินค้า',         weights: { business: 3, media: 2 } },
-      { id: 'fw-fix',   label: 'ซ่อมแซม ดูแลอุปกรณ์ หรืองานช่างต่างๆ',             weights: { craft: 3, tech: 2 } },
-      { id: 'fw-data',  label: 'จัดการบัญชี สต็อก หรือข้อมูลการเงิน',              weights: { data: 3, business: 2, law: 1 } },
-      { id: 'fw-care',  label: 'ดูแลคนในบ้าน ทำอาหาร หรือสร้างบรรยากาศที่ดี',     weights: { helping: 3, craft: 1 } },
+      { id: 'be-quiet',  label: 'เงียบ เป็นระเบียบ มีสมาธิ ไม่มีการรบกวน',                            weights: { data: 3, science: 2, law: 1 } },
+      { id: 'be-alive',  label: 'มีชีวิตชีวา พลุกพล่าน ได้พูดคุยและรับพลังจากคนรอบข้าง',              weights: { business: 2, helping: 2, media: 2 } },
+      { id: 'be-hands',  label: 'ได้ทำงานกับสิ่งที่จับต้องได้ มีพื้นที่และวัสดุจริง',                  weights: { craft: 3, nature: 2 } },
+      { id: 'be-fluid',  label: 'ยืดหยุ่น ท้าทาย ไม่รู้ว่าวันพรุ่งนี้จะเจอกับอะไร',                  weights: { creative: 2, business: 2 } },
     ],
   },
 
-  // ── Q12: Flow state — เวลาผ่านไปเร็ว ────────────────────────────────────
-  // Csikszentmihalyi: กิจกรรมที่ทำให้เกิด flow = genuine passion ที่แท้จริง
+  // ── Q12: สิ่งที่ทำให้หมดแรง แม้ทำได้ดี ──────────────────────────────────
+  // Super Work Values: สิ่งที่ทำให้เบื่อบอก values ที่ขาดหายได้ชัดกว่าการถามตรงๆ
   {
-    id: 'flow',
+    id: 'what_drains',
     kind: 'interest',
-    question: 'สิ่งที่ทำให้คุณรู้สึกว่า "เวลาผ่านไปเร็วมาก" จนลืมทุกอย่างคือ...',
-    helper: 'นักจิตวิทยา Csikszentmihalyi เรียกสิ่งนี้ว่า "Flow" — สัญญาณของความสนใจที่แท้จริง',
+    question: 'สิ่งที่ทำให้คุณหมดแรงจากงานเร็วที่สุด แม้จะทำมันได้ดีก็ตาม คือ...',
     options: [
-      { id: 'fl-code',  label: 'ตอนเขียนโปรแกรม แก้โจทย์ หรือทำงานกับข้อมูล',       weights: { data: 3, science: 2, tech: 2 } },
-      { id: 'fl-create',label: 'ตอนวาดรูป แต่งเพลง หรือสร้างงานสร้างสรรค์',          weights: { creative: 3, craft: 2 } },
-      { id: 'fl-talk',  label: 'ตอนคุย สอน ช่วย หรืออธิบายให้คนอื่นเข้าใจ',         weights: { helping: 3, media: 1 } },
-      { id: 'fl-build', label: 'ตอนประกอบของ ซ่อม หรือทดลองทำสิ่งใหม่ด้วยมือ',      weights: { craft: 3, tech: 2, science: 1 } },
+      { id: 'wd-repeat',   label: 'งานที่ทำซ้ำซากโดยไม่ต้องใช้ความคิดหรือตัดสินใจ',                   weights: { creative: 2, science: 2, business: 1 } },
+      { id: 'wd-solo',     label: 'งานที่ต้องทำคนเดียวนานๆ โดยไม่มีการพูดคุยหรือแลกเปลี่ยน',           weights: { helping: 2, media: 2, business: 1 } },
+      { id: 'wd-caged',    label: 'งานที่ถูกควบคุมมากเกินไป ไม่มีพื้นที่ตัดสินใจเอง',                  weights: { creative: 2, craft: 1, business: 1 } },
+      { id: 'wd-unclear',  label: 'งานที่ไม่มีเป้าหมายชัดเจน หรือไม่รู้ว่ากำลังก้าวหน้าหรือเปล่า',    weights: { data: 2, law: 2, science: 1 } },
     ],
   },
 
-  // ── Q13: เนื้อหาออนไลน์ ─────────────────────────────────────────────────
+  // ── Q13: แรงจูงใจภายใน — SDT ────────────────────────────────────────────
+  // Deci & Ryan (1985): intrinsic motivation คือ predictor ที่แม่นยำที่สุด
+  // ถามสิ่งที่ทำโดยไม่มีใครสั่งและไม่มีรางวัล = แรงจูงใจภายในแท้จริง
   {
-    id: 'online-content',
+    id: 'intrinsic_pull',
     kind: 'interest',
-    question: 'เนื้อหาออนไลน์ที่คุณดูแล้วไม่เบื่อและดูซ้ำได้เรื่อยๆ คือ...',
+    question: 'อะไรที่ทำให้คุณลุกขึ้นทำบางอย่างโดยไม่มีใครบังคับหรือให้รางวัล?',
+    helper: 'นักจิตวิทยา Deci & Ryan เรียกสิ่งนี้ว่า "แรงจูงใจภายใน" — สัญญาณที่แม่นยำกว่าการถามความชอบ',
     options: [
-      { id: 'oc-tech',   label: 'ทดลองวิทยาศาสตร์ DIY นวัตกรรม หรือ AI',              weights: { science: 2, tech: 2, craft: 2 } },
-      { id: 'oc-nature', label: 'สารคดีธรรมชาติ สัตว์ สิ่งแวดล้อม หรือการเดินทาง',   weights: { nature: 3, science: 2 } },
-      { id: 'oc-biz',    label: 'ธุรกิจ การลงทุน สตาร์ทอัป หรือเรื่องราวความสำเร็จ',  weights: { business: 3, data: 2 } },
-      { id: 'oc-art',    label: 'ศิลปะ เพลง แฟชั่น ภาพยนตร์ หรือไลฟ์สไตล์',          weights: { creative: 3, media: 2 } },
+      { id: 'ip-curiosity', label: 'ความอยากรู้ว่า "ทำไม" หรือ "มันทำงานยังไง"',                       weights: { science: 3, data: 2 } },
+      { id: 'ip-create',    label: 'โอกาสสร้างหรือพัฒนาบางอย่างที่ยังไม่มีอยู่',                        weights: { craft: 2, tech: 2, creative: 2 } },
+      { id: 'ip-impact',    label: 'รู้ว่าสิ่งที่ทำจะทำให้ชีวิตของใครสักคนดีขึ้นจริงๆ',                 weights: { helping: 3, media: 1 } },
+      { id: 'ip-challenge', label: 'ท้าทายที่ต้องใช้ทั้งความกล้าและความสามารถของตัวเอง',                 weights: { business: 3, law: 1 } },
     ],
   },
 
-  // ── Q14: แก้ปัญหาชุมชน ─────────────────────────────────────────────────
+  // ── Q14: SCCT — สิ่งที่คนอื่นขอจากคุณ ───────────────────────────────────
+  // Lent et al. (1994): perceived competence from others = reliable self-efficacy signal
+  // สิ่งที่คนขอโดยไม่ได้บอก = ความสามารถที่คนอื่นมองเห็นก่อนตัวเอง
   {
-    id: 'community',
+    id: 'others_seek_you',
     kind: 'interest',
-    question: 'ถ้าต้องช่วยแก้ปัญหาในชุมชน วิธีที่คุณอยากทำมากที่สุดคือ...',
+    question: 'คนรอบข้างมักขอให้คุณช่วยเรื่องอะไรโดยอัตโนมัติ แม้คุณไม่ได้เสนอตัว?',
     options: [
-      { id: 'co-invent', label: 'สร้างนวัตกรรมหรืออุปกรณ์แก้ปัญหาแบบใหม่',          weights: { tech: 3, craft: 2, science: 1 } },
-      { id: 'co-org',    label: 'รวมคน จัดกิจกรรม หรือระดมทุนให้เกิดการเปลี่ยนแปลง', weights: { business: 3, helping: 2 } },
-      { id: 'co-research',label: 'ศึกษา วิจัย และหาสาเหตุที่แท้จริงก่อนแก้',          weights: { science: 3, data: 2 } },
-      { id: 'co-teach',  label: 'ให้ความรู้ สอน หรือสร้างสื่อให้คนเข้าใจปัญหา',      weights: { media: 3, helping: 2 } },
+      { id: 'os-explain', label: 'อธิบายสิ่งที่ซับซ้อนให้เข้าใจง่ายขึ้น หรือแก้ปัญหาที่คนอื่นคิดไม่ออก', weights: { science: 2, data: 2, media: 1 } },
+      { id: 'os-repair',  label: 'ซ่อม แก้ไข หรือทำให้สิ่งที่พังกลับมาทำงานได้',                       weights: { craft: 3, tech: 2 } },
+      { id: 'os-listen',  label: 'ฟัง รับฟัง และช่วยให้ตัดสินใจเรื่องยากๆ ในชีวิต',                    weights: { helping: 3, media: 1 } },
+      { id: 'os-design',  label: 'ออกแบบ ตกแต่ง หรือทำให้บางอย่างดูหรือรู้สึกดีขึ้น',                  weights: { creative: 3, craft: 1, media: 1 } },
     ],
   },
 
-  // ── Q15: ทักษะที่อยากพัฒนา ──────────────────────────────────────────────
+  // ── Q15: ความท้าทายที่ดึงดูด ─────────────────────────────────────────────
+  // Holland: approach tendency = ตัวชี้วัดที่น่าเชื่อถือกว่า avoidance tendency
   {
-    id: 'skill-growth',
+    id: 'challenge_attraction',
     kind: 'interest',
-    question: 'ถ้ามีเวลา 1 ชั่วโมงต่อวันเรียนทักษะใหม่ คุณจะเลือกอะไร?',
+    question: 'ความท้าทายแบบไหนที่ทำให้คุณรู้สึกอยากเดินเข้าหา ไม่ใช่หลีกเลี่ยง?',
     options: [
-      { id: 'sg-code',    label: 'เขียนโปรแกรม AI หรือวิเคราะห์ข้อมูล',              weights: { tech: 3, data: 2 } },
-      { id: 'sg-business',label: 'ธุรกิจ การขาย หรือการพูดในที่สาธารณะ',             weights: { business: 3, media: 2 } },
-      { id: 'sg-art',     label: 'ดนตรี วาดรูป ออกแบบ หรือถ่ายภาพ',                  weights: { creative: 3, craft: 2 } },
-      { id: 'sg-care',    label: 'การแพทย์เบื้องต้น จิตวิทยา หรือการดูแลสุขภาพ',    weights: { helping: 3, science: 2 } },
+      { id: 'ca-unknown',  label: 'หาคำตอบที่ยังไม่มีใครรู้ หรือพิสูจน์บางสิ่งจากศูนย์',              weights: { science: 3, data: 2 } },
+      { id: 'ca-physical', label: 'ทดสอบขีดจำกัดของทักษะมือหรือร่างกายของตัวเอง',                     weights: { craft: 3, nature: 2 } },
+      { id: 'ca-persuade', label: 'โน้มน้าว สร้างความเชื่อมั่น หรือทำให้คนยอมรับแนวคิดใหม่',          weights: { business: 3, media: 2 } },
+      { id: 'ca-blank',    label: 'สร้างบางอย่างจากความว่างเปล่า โดยไม่มีกรอบกำหนด',                  weights: { creative: 3, craft: 1 } },
     ],
   },
 
-  // ── Q16: เพื่อนมองเห็นเราอย่างไร ────────────────────────────────────────
-  // Super: External perception มักแม่นยำกว่า self-report ในบางมิติ
+  // ── Q16: สิ่งที่ดึงดูดสายตาในชีวิตประจำวัน ──────────────────────────────
+  // Holland: automatic attention = most reliable interest indicator
+  // คนไม่รู้ตัวว่าตัวเองสังเกตอะไร — สิ่งที่ดึงสายตาโดยอัตโนมัติบอกโครงสร้างความสนใจแท้จริง
   {
-    id: 'peer-view',
+    id: 'world_attention',
     kind: 'interest',
-    question: 'เพื่อนๆ มักพูดถึงคุณว่าเป็นคนแบบไหน?',
+    question: 'เมื่อเดินผ่านสถานที่ต่างๆ ในชีวิตประจำวัน อะไรดึงดูดสายตาและความคิดคุณโดยอัตโนมัติ?',
     options: [
-      { id: 'pv-smart',  label: 'ช่างสังเกต ละเอียด วิเคราะห์เก่ง และตอบคำถามได้',  weights: { data: 2, science: 2, law: 1 } },
-      { id: 'pv-create', label: 'มีไอเดียแปลกใหม่เสมอ และทำให้สิ่งต่างๆ ดูน่าสนใจขึ้น', weights: { creative: 3, media: 1 } },
-      { id: 'pv-kind',   label: 'อบอุ่น ไว้ใจได้ และพร้อมช่วยเหลือเสมอ',              weights: { helping: 3, media: 1 } },
-      { id: 'pv-leader', label: 'กล้าแสดงออก พูดโน้มน้าวเก่ง และเป็นแกนนำได้',      weights: { business: 3, media: 2, law: 1 } },
+      { id: 'wa-systems',  label: 'กลไก โครงสร้าง หรือระบบที่อยู่เบื้องหลังสิ่งที่มองเห็น',          weights: { tech: 2, science: 2, data: 1 } },
+      { id: 'wa-aesthetic',label: 'รูปร่าง สี พื้นผิว และรายละเอียดที่ทำให้สิ่งต่างๆ น่าสนใจหรืองดงาม', weights: { creative: 3, craft: 1 } },
+      { id: 'wa-people',   label: 'ผู้คน การแสดงออก และสิ่งที่พวกเขาต้องการหรือรู้สึก',               weights: { helping: 3, media: 1, law: 1 } },
+      { id: 'wa-living',   label: 'สิ่งมีชีวิต ต้นไม้ สัตว์ และความสัมพันธ์ระหว่างสิ่งมีชีวิตกับสภาพแวดล้อม', weights: { nature: 3, science: 2 } },
     ],
   },
 
-  // ── Q17: Flow state ที่สอง (Multiple Intelligence) ─────────────────────
-  // Gardner: ตรวจสอบว่า intelligence ที่แท้จริงอยู่ที่ไหน
+  // ── Q17: ความหมายของงาน — Super Work Values ──────────────────────────────
+  // Super (1990): work values ทำนาย career satisfaction ได้ดีกว่า ability matching
   {
-    id: 'strength-moment',
+    id: 'work_meaning',
     kind: 'interest',
-    question: 'สถานการณ์ไหนที่ทำให้คุณรู้สึกว่า "ฉันทำสิ่งนี้ได้ดีจริงๆ"?',
+    question: 'สิ่งที่ทำให้คุณรู้สึกว่างานที่ทำ "คุ้มค่า" จริงๆ คืออะไร?',
     options: [
-      { id: 'sm-solve', label: 'ตอนแก้โจทย์ยาก ค้นพบคำตอบ หรือวิเคราะห์ข้อมูล',     weights: { science: 2, data: 2, tech: 1 } },
-      { id: 'sm-made',  label: 'ตอนสร้างหรือผลิตบางอย่างออกมาได้ด้วยมือตัวเอง',      weights: { craft: 3, creative: 2 } },
-      { id: 'sm-helped',label: 'ตอนที่ช่วยให้ใครสักคนรู้สึกดีขึ้นหรือแก้ปัญหาได้',  weights: { helping: 3 } },
-      { id: 'sm-led',   label: 'ตอนได้นำทีม จัดงาน หรือทำให้โปรเจกต์สำเร็จ',        weights: { business: 3, media: 2 } },
+      { id: 'wm-grow',    label: 'ได้พัฒนาความสามารถและความรู้ใหม่ในตัวเอง',                           weights: { science: 2, data: 1, craft: 2 } },
+      { id: 'wm-lasting', label: 'สิ่งที่สร้างไว้ยังคงอยู่และมีคนใช้ประโยชน์จากมันต่อ',                weights: { craft: 2, tech: 2, business: 1 } },
+      { id: 'wm-change',  label: 'ส่งผลกระทบต่อชีวิตหรือความเป็นอยู่ของคนอื่นโดยตรงและจับต้องได้',     weights: { helping: 3, nature: 1 } },
+      { id: 'wm-mastery', label: 'ทำในสิ่งที่คนอื่นทำได้น้อยคนนัก และเป็นที่พึ่งพาได้',               weights: { science: 2, data: 2, law: 2 } },
     ],
   },
 
-  // ── Q18: ความสุขในการตัดสินใจ ──────────────────────────────────────────
+  // ── Q18: ตัวยึดในการตัดสินใจ ─────────────────────────────────────────────
+  // Holland C vs E: คนที่ยึดข้อมูล vs คนที่ยึดโอกาส แสดง Conventional vs Enterprising ชัด
   {
-    id: 'decision',
+    id: 'decision_anchor',
     kind: 'interest',
-    question: 'เวลาต้องตัดสินใจสำคัญ คุณมักพึ่งอะไร?',
+    question: 'เมื่อต้องตัดสินใจสำคัญโดยไม่มีข้อมูลครบ คุณยึดอะไรเป็นหลัก?',
     options: [
-      { id: 'de-data',    label: 'ข้อมูลและตัวเลข เหตุผลต้องชัดเจนก่อนตัดสินใจ',     weights: { data: 3, science: 2, law: 1 } },
-      { id: 'de-feel',    label: 'ความรู้สึกและสัญชาตญาณ ถ้าใจบอกให้ทำก็ทำ',         weights: { creative: 2, helping: 1 } },
-      { id: 'de-future',  label: 'ประโยชน์ระยะยาวและโอกาสที่จะได้รับ',               weights: { business: 3, data: 2 } },
-      { id: 'de-try',     label: 'ลองทำดูก่อน ถ้าไม่ได้ค่อยปรับแก้',                weights: { craft: 2, tech: 1, creative: 1 } },
+      { id: 'da-data',      label: 'รวบรวมข้อมูลเพิ่มจนมั่นใจพอ แม้ต้องใช้เวลา',                       weights: { data: 3, science: 2, law: 1 } },
+      { id: 'da-instinct',  label: 'ประสบการณ์และสัญชาตญาณที่สะสมมาจากการลงมือทำจริงๆ',                weights: { craft: 2, creative: 1, science: 1 } },
+      { id: 'da-trusted',   label: 'มุมมองของคนที่ตัวเองไว้วางใจและเคารพ',                              weights: { helping: 2, media: 1, business: 1 } },
+      { id: 'da-fast',      label: 'ตัดสินใจเร็วและพร้อมปรับแก้ถ้าผลลัพธ์ไม่เป็นอย่างที่คาด',           weights: { business: 3, creative: 1 } },
     ],
   },
 
-  // ── Q19: ประสบการณ์ที่ภาคภูมิใจ ─────────────────────────────────────────
-  // Super: Peak experience บ่งบอก core values และ abilities ที่แท้จริง
+  // ── Q19: วิธีฟื้นคืนพลัง ──────────────────────────────────────────────────
+  // Introversion/Extraversion (Big Five) + Work Environment Preference
+  // สิ่งที่ฟื้นคืนพลังหลังจากเหนื่อยบอก energy source ที่แท้จริง
   {
-    id: 'proud-moment',
+    id: 'recharge_method',
     kind: 'interest',
-    question: 'ประสบการณ์ที่ทำให้คุณภาคภูมิใจที่สุดจนถึงตอนนี้คือ...',
+    question: 'หลังจากวันที่เหนื่อยมาก สิ่งที่ช่วยให้คุณฟื้นคืนพลังกลับมาได้จริงๆ คือ...',
     options: [
-      { id: 'pm-learn',  label: 'ตอนเรียนรู้สิ่งยากจนทำได้สำเร็จ',                  weights: { science: 2, data: 2, craft: 1 } },
-      { id: 'pm-create', label: 'ตอนสร้างผลงานที่คนอื่นชื่นชม',                       weights: { creative: 3, media: 2 } },
-      { id: 'pm-help',   label: 'ตอนที่การกระทำของเราทำให้ชีวิตใครดีขึ้นจริงๆ',      weights: { helping: 3 } },
-      { id: 'pm-lead',   label: 'ตอนนำทีมให้บรรลุเป้าหมายที่ยาก',                    weights: { business: 3, media: 2 } },
+      { id: 'rm-alone',    label: 'อยู่คนเดียวในที่เงียบ มีเวลาคิดหรืออ่านตามลำพัง',                   weights: { science: 2, data: 1, nature: 1 } },
+      { id: 'rm-physical', label: 'ทำบางอย่างด้วยมือหรือร่างกาย ไม่ว่าจะเป็นอะไรก็ตาม',                weights: { craft: 3, nature: 2 } },
+      { id: 'rm-connect',  label: 'พูดคุย แบ่งปัน หรืออยู่กับคนที่ทำให้รู้สึกเป็นตัวเอง',               weights: { helping: 2, media: 2 } },
+      { id: 'rm-project',  label: 'ลงมือทำโปรเจกต์ส่วนตัวที่อยากทำมานาน',                              weights: { creative: 2, science: 1, craft: 1 } },
     ],
   },
 
-  // ── Q20: 10 ปีข้างหน้า (values-based, ไม่ใช่ career-based) ─────────────
-  // Super: ถามเรื่องชีวิต ไม่ใช่อาชีพ เพราะค่านิยมบอก direction ได้ลึกกว่า
+  // ── Q20: การเปลี่ยนแปลงในอุดมคติ ────────────────────────────────────────
+  // Super: future orientation บอก underlying values ที่ลึกกว่าการถาม "คุณอยากทำอะไร"
   {
-    id: 'future-life',
+    id: 'ideal_change',
     kind: 'interest',
-    question: 'ในอีก 10 ปี ถ้าชีวิตคุณประสบความสำเร็จ สิ่งที่สำคัญที่สุดคือ...',
-    helper: 'ไม่ต้องเลือกตามที่คิดว่า "ควรจะเป็น" เลือกตามที่รู้สึกจริงๆ',
+    question: 'ถ้าการกระทำของคุณเปลี่ยนบางอย่างได้จริง คุณอยากให้มันเป็นการเปลี่ยนแปลงแบบไหน?',
     options: [
-      { id: 'fl-expert', label: 'มีความเชี่ยวชาญลึกในสิ่งที่รักจนเป็นที่ยอมรับ',     weights: { science: 2, data: 2, craft: 2 } },
-      { id: 'fl-own',    label: 'มีธุรกิจหรือผลงานที่ตัวเองสร้างขึ้นมาเอง',           weights: { business: 3, creative: 2 } },
-      { id: 'fl-impact', label: 'ได้ช่วยเหลือผู้คนและสร้างความแตกต่างให้โลก',         weights: { helping: 3, media: 1 } },
-      { id: 'fl-stable', label: 'มีชีวิตมั่นคง ครอบครัวที่ดี และสุขภาพที่แข็งแรง',   weights: { law: 2, data: 1, helping: 1 } },
+      { id: 'ic-system',  label: 'ทำให้ระบบหรือกระบวนการมีความยุติธรรมหรือมีประสิทธิภาพมากขึ้น',         weights: { law: 3, data: 2, business: 1 } },
+      { id: 'ic-access',  label: 'ทำให้สิ่งที่ซับซ้อนกลายเป็นสิ่งที่คนทั่วไปเข้าถึงและเข้าใจได้',       weights: { media: 3, tech: 2, helping: 1 } },
+      { id: 'ic-people',  label: 'ทำให้ชีวิตของคนที่กำลังเจ็บปวดหรือต้องการช่วยเหลือดีขึ้นจริงๆ',       weights: { helping: 3, science: 1 } },
+      { id: 'ic-nature',  label: 'ทำให้โลกธรรมชาติและสิ่งมีชีวิตอยู่รอดและเติบโตได้ดีกว่าเดิม',         weights: { nature: 3, science: 2 } },
     ],
   },
 
-  // ── Q21: กิจกรรมอาสาสมัคร ──────────────────────────────────────────────
-  // Holland: การเลือกกิจกรรมที่ไม่มีรางวัลบอก intrinsic motivation ชัดมาก
+  // ── Q21: การรับมือกับความเสี่ยง ──────────────────────────────────────────
+  // Zuckerman (1994): sensation seeking / risk tolerance ทำนาย E vs C ได้ชัดมาก
+  // Locus of control (Rotter, 1966): internal vs external
   {
-    id: 'volunteer',
+    id: 'risk_orientation',
     kind: 'interest',
-    question: 'ถ้าเลือกทำกิจกรรมอาสาสมัครได้ คุณจะเลือกอะไร?',
+    question: 'เมื่อต้องเลือกระหว่างทางที่ผลตอบแทนสูงแต่ไม่แน่นอน กับทางที่ผลน้อยกว่าแต่มั่นคงกว่า คุณมักทำอย่างไร?',
     options: [
-      { id: 'vo-teach',  label: 'สอนหรือติวน้องๆ ที่ต้องการความช่วยเหลือ',            weights: { helping: 3, media: 1 } },
-      { id: 'vo-tech',   label: 'พัฒนาแอป เว็บ หรือเทคโนโลยีเพื่อชุมชน',             weights: { tech: 3, craft: 2 } },
-      { id: 'vo-biz',    label: 'จัดงาน ขายของ หรือระดมทุนเพื่อการกุศล',             weights: { business: 3, media: 2 } },
-      { id: 'vo-nature', label: 'ดูแลสิ่งแวดล้อม ปลูกต้นไม้ หรืออนุรักษ์ธรรมชาติ',  weights: { nature: 3, science: 2 } },
+      { id: 'ro-analyze', label: 'วิเคราะห์ความเสี่ยงให้ละเอียดก่อน แล้วเลือกตามที่ข้อมูลบอก',          weights: { data: 2, law: 2, science: 1 } },
+      { id: 'ro-safe',    label: 'มักเลือกทางที่มั่นคงกว่า เพราะความแน่นอนทำให้ทำงานได้ดีกว่า',          weights: { law: 3, data: 1 } },
+      { id: 'ro-bold',    label: 'มักเลือกทางที่ท้าทายกว่า เพราะโอกาสที่ดีไม่ได้มาบ่อยๆ',               weights: { business: 3, creative: 1 } },
+      { id: 'ro-values',  label: 'ขึ้นอยู่กับว่าสิ่งที่เสี่ยงนั้นสำคัญและมีความหมายต่อตัวเองมากแค่ไหน', weights: { helping: 2, creative: 1, science: 1 } },
     ],
   },
 
-  // ── Q22: สิ่งที่คุณอยากให้คนอื่น "จำ" คุณ ──────────────────────────────
-  // Super Work Values: legacy value บอก core identity ที่ลึกที่สุด
+  // ── Q22: ความสบายใจกับระเบียบและโครงสร้าง ───────────────────────────────
+  // Holland C vs A: structure preference เป็น discriminator ที่แม่นยำมาก
   {
-    id: 'legacy',
+    id: 'structure_comfort',
     kind: 'interest',
-    question: 'ถ้าวันนึงคนอื่นพูดถึงคุณ คุณอยากให้เขาจำคุณในฐานะอะไรมากที่สุด?',
+    question: 'คุณรู้สึกสบายใจและทำงานได้ดีที่สุดเมื่อ...',
     options: [
-      { id: 'le-innovate',label: 'คนที่สร้างสิ่งใหม่หรือแก้ปัญหาที่ไม่มีใครคิดถึง',  weights: { creative: 3, tech: 2, science: 1 } },
-      { id: 'le-care',    label: 'คนที่ทำให้ชีวิตคนอื่นดีขึ้นจริงๆ',                  weights: { helping: 3 } },
-      { id: 'le-build',   label: 'คนที่สร้างธุรกิจหรือองค์กรที่ยั่งยืนและสร้างงาน',   weights: { business: 3, law: 2 } },
-      { id: 'le-master',  label: 'คนที่เชี่ยวชาญและเป็นอ้างอิงในสาขาของตัวเอง',       weights: { science: 2, data: 2, craft: 2 } },
+      { id: 'sc-rules',    label: 'มีขั้นตอน กฎ และมาตรฐานที่ชัดเจนให้ปฏิบัติตาม',                     weights: { law: 3, data: 2 } },
+      { id: 'sc-goal',     label: 'มีเป้าหมายชัดแต่เลือกเส้นทางได้เอง',                                 weights: { business: 2, creative: 2 } },
+      { id: 'sc-free',     label: 'ทุกอย่างยืดหยุ่น ปรับแผนได้ตลอดตามสถานการณ์',                        weights: { creative: 2, nature: 1, craft: 1 } },
+      { id: 'sc-team',     label: 'มีโครงสร้างหลวมๆ และทีมตัดสินใจร่วมกัน',                             weights: { helping: 2, business: 2, media: 1 } },
     ],
   },
+
+  // ── Q23: ช่วงเวลาที่รู้สึกว่า "เกิดมาเพื่อสิ่งนี้" ─────────────────────
+  // SCCT: peak performance experience = strongest self-efficacy signal
+  {
+    id: 'peak_performance',
+    kind: 'interest',
+    question: 'ประสบการณ์ที่ทำให้คุณรู้สึกว่า "ฉันเกิดมาเพื่อสิ่งนี้" หรือ "ฉันทำสิ่งนี้ได้ดีจริงๆ" คือ...',
+    options: [
+      { id: 'pp-teach',   label: 'ตอนที่อธิบายบางอย่างได้จนคนฟังเปลี่ยนความเข้าใจหรือมองเห็นสิ่งใหม่',  weights: { helping: 3, media: 2 } },
+      { id: 'pp-make',    label: 'ตอนที่สร้างบางอย่างออกมาได้ในแบบที่ตัวเองพอใจอย่างแท้จริง',            weights: { creative: 3, craft: 2 } },
+      { id: 'pp-solve',   label: 'ตอนที่แก้ปัญหาซับซ้อนและเห็นคำตอบที่ชัดเจนจากความยุ่งเหยิง',           weights: { science: 3, data: 2 } },
+      { id: 'pp-lead',    label: 'ตอนที่นำทีมหรือสถานการณ์ไปสู่ผลลัพธ์ที่วางไว้',                       weights: { business: 3, media: 1 } },
+    ],
+  },
+
+  // ── Q24: มรดกที่อยากทิ้งไว้ ─────────────────────────────────────────────
+  // Super: legacy value = core identity ที่ลึกที่สุด
+  // คำถามนี้ให้มองไกลออกไป เพื่อหลุดจาก present-state bias
+  {
+    id: 'legacy_wish',
+    kind: 'interest',
+    question: 'ถ้าคนรุ่นหลังจดจำสิ่งที่คุณทิ้งไว้ในโลก คุณอยากให้มันเป็นอะไร?',
+    helper: 'ไม่ต้องคิดว่าควรจะตอบอะไร — เลือกตามที่รู้สึกจริงๆ',
+    options: [
+      { id: 'lw-knowledge', label: 'ความรู้หรือความเข้าใจที่ช่วยให้คนอื่นมองเห็นโลกได้ชัดและลึกขึ้น',    weights: { science: 3, media: 2, data: 1 } },
+      { id: 'lw-creation',  label: 'งาน สิ่งประดิษฐ์ หรือโครงสร้างที่ยังคงทำประโยชน์อยู่',               weights: { craft: 3, tech: 2, business: 1 } },
+      { id: 'lw-people',    label: 'คนที่ชีวิตดีขึ้นเพราะสิ่งที่คุณทำให้พวกเขาโดยตรง',                   weights: { helping: 3, nature: 1 } },
+      { id: 'lw-system',    label: 'ระบบหรือองค์กรที่สร้างคุณค่าได้แม้คุณไม่อยู่แล้ว',                    weights: { business: 3, law: 2 } },
+    ],
+  },
+
+  // ── Q25: ปฏิกิริยาต่อความอยุติธรรม ──────────────────────────────────────
+  // Moral foundations theory (Haidt, 2012): moral intuitions predict career domains
+  // คนที่รู้สึกถึงความอยุติธรรมต่างกันจะถูกดึงไปสู่บทบาทที่ต่างกัน
+  {
+    id: 'fairness_response',
+    kind: 'interest',
+    question: 'เมื่อเห็นสถานการณ์ที่ไม่ยุติธรรมหรือระบบที่ทำงานผิดพลาด ปฏิกิริยาแรกของคุณคืออะไร?',
+    options: [
+      { id: 'fr-analyze', label: 'อยากวิเคราะห์ว่าทำไมถึงเป็นแบบนี้ และหาวิธีแก้ที่ยั่งยืน',            weights: { law: 3, data: 2, science: 1 } },
+      { id: 'fr-tell',    label: 'อยากสื่อสารและบอกเล่าให้คนอื่นรู้และเข้าใจสิ่งที่เกิดขึ้น',             weights: { media: 3, helping: 2 } },
+      { id: 'fr-help',    label: 'อยากลงมือช่วยคนที่ได้รับผลกระทบโดยตรงทันที',                           weights: { helping: 3, law: 1 } },
+      { id: 'fr-build',   label: 'อยากสร้างทางเลือกหรือระบบที่ดีกว่าแทนของเดิม',                          weights: { business: 3, tech: 2, creative: 1 } },
+    ],
+  },
+
+  // ── Q26: ความลึกกับความกว้าง ─────────────────────────────────────────────
+  // Holland I vs C: breadth seekers (I) vs depth/mastery seekers (C)
+  // Super: variety vs mastery work values
+  {
+    id: 'depth_vs_breadth',
+    kind: 'interest',
+    question: 'ในการเรียนรู้หรือการทำงาน คุณรู้สึกพอใจมากกว่าเมื่อ...',
+    options: [
+      { id: 'db-wide',    label: 'ได้สำรวจหัวข้อหลากหลาย ค้นพบความเชื่อมโยง และเรียนรู้กว้างๆ',         weights: { science: 2, creative: 2, media: 1 } },
+      { id: 'db-deep',    label: 'ขุดลึกในเรื่องเดียวจนเชี่ยวชาญและเป็นที่พึ่งพาของคนอื่นได้',            weights: { science: 2, data: 2, craft: 2 } },
+      { id: 'db-result',  label: 'เห็นผลลัพธ์ของงานเร็ว และวัดความก้าวหน้าได้ชัดเจน',                    weights: { business: 2, data: 2, craft: 1 } },
+      { id: 'db-connect', label: 'ได้ทำงานที่เชื่อมต่อกับคนหลากหลายและต้องใช้ทักษะหลายด้าน',              weights: { helping: 2, media: 2, business: 1 } },
+    ],
+  },
+
+  // ── Q27: ความสัมพันธ์กับโลกธรรมชาติ ─────────────────────────────────────
+  // Holland R extended: nature orientation ไม่ใช่แค่ชอบออกกำลัง
+  // แต่บ่งบอกว่าตัวเองเห็นตัวเองเป็นส่วนหนึ่งของสิ่งมีชีวิตหรือไม่
+  {
+    id: 'nature_relationship',
+    kind: 'interest',
+    question: 'ความสัมพันธ์ของคุณกับโลกธรรมชาติ สิ่งมีชีวิต และสภาพแวดล้อมเป็นอย่างไร?',
+    options: [
+      { id: 'nr-bond',     label: 'รู้สึกผูกพันและมีพลังเมื่ออยู่ในธรรมชาติ มันสำคัญต่อชีวิตฉันมาก',     weights: { nature: 3, craft: 1 } },
+      { id: 'nr-science',  label: 'สนใจจากมุมมองทางวิเคราะห์ อยากเข้าใจมันมากกว่าแค่เพลิดเพลิน',         weights: { science: 3, data: 1 } },
+      { id: 'nr-beauty',   label: 'ชื่นชมและรู้สึกได้ถึงความงาม แต่สนใจในสิ่งที่มนุษย์สร้างมากกว่า',     weights: { creative: 2, craft: 2 } },
+      { id: 'nr-context',  label: 'เป็นพื้นที่ที่ดีสำหรับคิดทบทวน แต่ไม่ใช่สิ่งที่ขับเคลื่อนความสนใจหลักของฉัน', weights: { data: 2, tech: 2 } },
+    ],
+  },
+
 ];
 
 // ─── Scorer ──────────────────────────────────────────────────────────────────
