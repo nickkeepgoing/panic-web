@@ -121,6 +121,7 @@ export function SiteNav() {
             ช่วงที่ยังใช้ฟอนต์สำรองอยู่ตัวอักษรจะกว้างกว่านี้และดันจนจอเลื่อนแนวนอนได้
             ต่ำกว่า 360px จึงย้ายปุ่มเข้าสู่ระบบลงไปอยู่ในเมนูแทน */}
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:hidden">
+          <ThemeToggle />
           {auth === null ? (
             <span className="hidden h-11 w-[5.25rem] min-[360px]:block" aria-hidden />
           ) : auth.signedIn ? null : (
