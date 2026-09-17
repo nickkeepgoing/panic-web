@@ -5,6 +5,7 @@ import { CompetitionCard } from '@/components/CompetitionCard';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { CATEGORY_ORDER, categoryStyle } from '@/lib/categories';
 import { daysLeft } from '@/lib/types';
+import { CAREER_QUIZ } from '@/lib/career-quiz';
 
 export const revalidate = 60;
 
@@ -138,7 +139,7 @@ export default async function HomePage() {
               ลองหาคำตอบจากชีวิตจริง
             </h2>
             <p className="max-w-md text-muted dark:text-white/60">
-              ตอบ 22 คำถามเกี่ยวกับสิ่งที่คุณทำและชอบ ระบบจะวิเคราะห์บุคลิก
+              ตอบ {CAREER_QUIZ.length} คำถามเกี่ยวกับสิ่งที่คุณทำและชอบ ระบบจะวิเคราะห์บุคลิก
               แล้วแนะนำอาชีพที่เหมาะกับคุณจาก 28 สาขา
             </p>
             <div className="flex flex-wrap items-center gap-3">
