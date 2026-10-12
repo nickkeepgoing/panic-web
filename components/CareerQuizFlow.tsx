@@ -115,6 +115,7 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
   // session_id: อ่านจาก cookie ถ้ามีอยู่แล้ว ถ้าไม่มีสร้างใหม่แล้วเก็บใน cookie
   const [sessionId, setSessionId] = useState(initialSessionId);
   const headingRef = useRef<HTMLLegendElement>(null);
+  const pageViewSent = useRef(false);
   const helperId = useId();
 
   useEffect(() => {
@@ -129,6 +130,13 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ยิง PAGE_VIEW ครั้งเดียวเมื่อมี session_id แล้ว (funnel step แรก)
+  useEffect(() => {
+    if (!sessionId || pageViewSent.current) return;
+    pageViewSent.current = true;
+    trackEvent(sessionId, 'PAGE_VIEW');
+  }, [sessionId]);
 
   // ย้ายโฟกัสไปคำถามใหม่ทุกครั้ง (a11y — ตามแบบ QuizFlow)
   useEffect(() => {
@@ -210,6 +218,8 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
           trackEvent(sessionId, 'CAREER_TEST_COMPLETE', {
             metadata: { top_careers: result.slice(0, 3).map((m) => m.career.slug) },
           });
+          // results แสดงทันทีในหน้าเดียวกัน — ยิง RESULT_VIEW คู่กับ COMPLETE
+          trackEvent(sessionId, 'CAREER_RESULT_VIEW');
 
           setState('results');
         }, 2800);

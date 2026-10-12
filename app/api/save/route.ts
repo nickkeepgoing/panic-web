@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { serverClient } from '@/lib/supabase/server';
 import { hasSupabase } from '@/lib/supabase/config';
 
@@ -29,6 +30,13 @@ export async function POST(request: Request) {
 
   // RLS บังคับอยู่แล้วว่า user_id ต้องเป็นตัวเอง ปลอมส่งของคนอื่นมาไม่ได้
   const { error } = await sb.from('saved_projects').upsert({ user_id: auth.user.id, project_id: projectId });
-  if (!error) void sb.rpc('adjust_save_count', { pid: projectId, delta: 1 });
+  if (!error) {
+    void sb.rpc('adjust_save_count', { pid: projectId, delta: 1 });
+    // PROJECT_SAVE event สำหรับ analytics — session_id ต้องไม่ว่าง (RLS) จึง fallback เป็น user id
+    const sid = cookies().get('panic_session_id')?.value || auth.user.id;
+    void sb.from('events').insert({
+      session_id: sid, user_id: auth.user.id, event_type: 'PROJECT_SAVE', object_id: projectId,
+    });
+  }
   return NextResponse.json({ saved: true });
 }
