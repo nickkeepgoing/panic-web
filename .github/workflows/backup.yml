@@ -22,7 +22,8 @@ jobs:
       - name: Dump ฐานข้อมูล
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: pg_dump "$DATABASE_URL" --no-owner --no-privileges -f backup-$(date +%F).sql
+        # runner มี pg_dump v16 ติดมาที่ /usr/bin อยู่แล้ว ต้องเรียก v17 ด้วย full path
+        run: /usr/lib/postgresql/17/bin/pg_dump "$DATABASE_URL" --no-owner --no-privileges -f backup-$(date +%F).sql
 
       - name: เก็บไฟล์
         uses: actions/upload-artifact@v4
