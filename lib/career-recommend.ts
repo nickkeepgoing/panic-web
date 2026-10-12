@@ -10,20 +10,26 @@ export type CareerMatch = {
   topDims: DimSlug[]; // 2–3 dimension ที่ขับเคลื่อนผลลัพธ์
 };
 
-/** คะแนนความคล้ายคลึง: dot product ของ profile (0-100) × career dim (0-10) */
+/**
+ * คะแนนความเหมาะสม: Pearson correlation ระหว่าง "รูปทรง" ความสนใจของผู้ใช้กับของอาชีพ
+ * r = 1 → มิติที่เด่น/ด้อยตรงกันหมด, r = 0 → ไม่สัมพันธ์, r = -1 → ตรงข้าม
+ * แปลงเป็น 0–100 ด้วย (r + 1) / 2 — อาชีพที่ตรงจริงได้ ~70–95%
+ * (สูตรเดิม dot product ÷ ผลรวม ให้ทุกอาชีพ ~17–23% เพราะคำตอบกระจายหลายมิติ)
+ */
 function scoreCareer(profile: CareerQuizProfile, career: Career): number {
-  let sum = 0;
-  let maxPossible = 0;
+  const p = ALL_DIMS.map((d) => profile.dims.get(d) ?? 0);
+  const c = ALL_DIMS.map((d) => career[`dim_${d}` as keyof Career] as number);
+  const mp = p.reduce((s, x) => s + x, 0) / p.length;
+  const mc = c.reduce((s, x) => s + x, 0) / c.length;
 
-  for (const dim of ALL_DIMS) {
-    const profileVal = (profile.dims.get(dim) ?? 0) / 100; // 0-1
-    const careerVal = career[`dim_${dim}` as keyof Career] as number / 10; // 0-1
-    sum += profileVal * careerVal;
-    maxPossible += careerVal;
+  let cov = 0, vp = 0, vc = 0;
+  for (let i = 0; i < p.length; i++) {
+    cov += (p[i] - mp) * (c[i] - mc);
+    vp += (p[i] - mp) ** 2;
+    vc += (c[i] - mc) ** 2;
   }
-
-  if (maxPossible === 0) return 0;
-  return Math.round((sum / maxPossible) * 100);
+  const r = vp && vc ? cov / Math.sqrt(vp * vc) : 0;
+  return Math.round(((r + 1) / 2) * 100);
 }
 
 /** หา dim ที่ทั้ง career สูง (≥7) และ profile สูง (≥40) — เหตุผลจริงของ match */

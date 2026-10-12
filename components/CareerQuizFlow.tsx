@@ -104,12 +104,43 @@ function CareerCard({ match }: { match: CareerMatch }) {
   );
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─── Progress persistence (per-browser convenience — ล้มเหลวได้ เช่น private mode) ─
+const PROGRESS_KEY = 'panic_career_progress';
+type SavedProgress = { step: number; answers: CareerQuizAnswers };
+
+function loadProgress(): SavedProgress | null {
+  try {
+    const p = JSON.parse(localStorage.getItem(PROGRESS_KEY) ?? 'null');
+    if (p && typeof p.step === 'number' && p.step > 0 && p.step < CAREER_QUIZ.length && p.answers) return p;
+  } catch {}
+  return null;
+}
+function saveProgress(p: SavedProgress) {
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch {}
+}
+function clearProgress() {
+  try { localStorage.removeItem(PROGRESS_KEY); } catch {}
+}
+
+const AUTO_ADVANCE_MS = 280;
+const SECONDS_PER_QUESTION = 8;
+
 // ─── Main component ──────────────────────────────────────────────────────────
 export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
   const [state, setState] = useState<State>('start');
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<CareerQuizAnswers>({});
-  const [error, setError] = useState('');
+  const [resume, setResume] = useState<SavedProgress | null>(null);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout>>();
   const [matches, setMatches] = useState<CareerMatch[]>([]);
   const [topDimsList, setTopDimsList] = useState<DimSlug[]>([]);
   // session_id: อ่านจาก cookie ถ้ามีอยู่แล้ว ถ้าไม่มีสร้างใหม่แล้วเก็บใน cookie
@@ -117,6 +148,13 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
   const headingRef = useRef<HTMLLegendElement>(null);
   const pageViewSent = useRef(false);
   const helperId = useId();
+  // สลับลำดับตัวเลือกต่อ session — กันผู้ตอบจับ pattern ว่าตำแหน่งไหนเป็นสายไหน
+  // (options แสดงหลังกดเริ่มเท่านั้น จึงไม่เกิด hydration mismatch)
+  const [optionOrder] = useState(() =>
+    CAREER_QUIZ.map((q) =>
+      q.kind === 'filter' ? q.options : shuffle(q.options),
+    ),
+  );
 
   useEffect(() => {
     if (sessionId) return;
@@ -143,6 +181,94 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
     if (state === 'quiz') headingRef.current?.focus();
   }, [step, state]);
 
+  // เปลี่ยนหน้า (start → quiz → results) ให้เริ่มที่ด้านบนเสมอ
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [state]);
+
+  // มีความคืบหน้าค้างจากครั้งก่อนไหม
+  useEffect(() => {
+    setResume(loadProgress());
+  }, []);
+
+  useEffect(() => {
+    if (state === 'quiz') saveProgress({ step, answers });
+  }, [state, step, answers]);
+
+  useEffect(() => () => clearTimeout(advanceTimer.current), []);
+
+  // คีย์ลัด: 1–4 เลือกตัวเลือก
+  useEffect(() => {
+    if (state !== 'quiz') return;
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const opt = optionOrder[step][Number(e.key) - 1];
+      if (opt) select(opt.id);
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  });
+
+  const isLast = step + 1 === CAREER_QUIZ.length;
+
+  function start(from: SavedProgress | null) {
+    trackEvent(sessionId, 'CAREER_TEST_START');
+    if (!from) clearProgress();
+    setAnswers(from?.answers ?? {});
+    setStep(from?.step ?? 0);
+    setResume(null);
+    setState('quiz');
+  }
+
+  function goNext() {
+    clearTimeout(advanceTimer.current);
+    if (isLast) finish();
+    else setStep((s) => Math.min(s + 1, CAREER_QUIZ.length - 1));
+  }
+
+  function select(optId: string) {
+    const qid = CAREER_QUIZ[step].id;
+    setAnswers((a) => ({ ...a, [qid]: optId }));
+    // เลือกแล้วไปข้อถัดไปเอง (ข้อสุดท้ายรอให้กด "ดูผลลัพธ์")
+    clearTimeout(advanceTimer.current);
+    if (!isLast) {
+      const from = step;
+      advanceTimer.current = setTimeout(() => setStep((s) => (s === from ? s + 1 : s)), AUTO_ADVANCE_MS);
+    }
+  }
+
+  function prev() {
+    clearTimeout(advanceTimer.current);
+    if (step > 0) setStep(step - 1);
+  }
+
+  function finish() {
+    clearProgress();
+    setState('calculating');
+    setTimeout(() => {
+      const profile = scoreCareerQuiz(answers);
+      const result = recommendCareers(profile, careers, 5);
+      setMatches(result);
+
+      // หา top dims จาก profile
+      const sorted = [...profile.dims.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4)
+        .filter(([, v]) => v >= 30)
+        .map(([d]) => d);
+      setTopDimsList(sorted);
+
+      // บันทึก event
+      trackEvent(sessionId, 'CAREER_TEST_COMPLETE', {
+        metadata: { top_careers: result.slice(0, 3).map((m) => m.career.slug) },
+      });
+      // results แสดงทันทีในหน้าเดียวกัน — ยิง RESULT_VIEW คู่กับ COMPLETE
+      trackEvent(sessionId, 'CAREER_RESULT_VIEW');
+
+      setState('results');
+    }, 1500);
+  }
+
   // ─── Start ──────────────────────────────────────────────────────────
   if (state === 'start') {
     return (
@@ -162,24 +288,49 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              trackEvent(sessionId, 'CAREER_TEST_START');
-              setState('quiz');
-            }}
-            className="rounded-lg bg-brand px-10 py-3.5 font-display text-lg font-semibold text-white transition-colors duration-200 hover:bg-brand-deep"
-          >
-            เริ่มค้นหาตัวเอง
-          </button>
-          <p className="text-sm text-muted">ใช้เวลาประมาณ 3 นาที · ไม่ต้องเข้าสู่ระบบ</p>
+          {resume ? (
+            <>
+              <button
+                type="button"
+                onClick={() => start(resume)}
+                className="rounded-lg bg-brand px-10 py-3.5 font-display text-lg font-semibold text-white transition-colors duration-200 hover:bg-brand-deep"
+              >
+                ทำต่อจากข้อ {resume.step + 1}
+              </button>
+              <button
+                type="button"
+                onClick={() => start(null)}
+                className="min-h-[44px] px-4 text-sm font-medium text-muted underline-offset-4 hover:text-brand-deep hover:underline"
+              >
+                เริ่มใหม่ตั้งแต่ข้อแรก
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => start(null)}
+              className="rounded-lg bg-brand px-10 py-3.5 font-display text-lg font-semibold text-white transition-colors duration-200 hover:bg-brand-deep"
+            >
+              เริ่มค้นหาตัวเอง
+            </button>
+          )}
+          <p className="text-sm text-muted">
+            ใช้เวลาประมาณ {Math.ceil((CAREER_QUIZ.length * SECONDS_PER_QUESTION) / 60)} นาที · ไม่ต้องเข้าสู่ระบบ
+          </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 text-sm text-muted">
-          {['ความสนใจ', 'รูปแบบการทำงาน', 'บุคลิกภาพ', 'ทักษะ', 'สภาพแวดล้อม'].map((tag) => (
-            <span key={tag} className="rounded-full border border-line bg-surface px-3 py-1">{tag}</span>
+        <ul className="grid w-full max-w-lg gap-2 text-left text-sm sm:grid-cols-3">
+          {[
+            ['ไม่มีคำตอบถูกหรือผิด', 'เลือกสิ่งที่คุณทำจริง ไม่ใช่สิ่งที่คิดว่าควรเป็น'],
+            ['ข้ามได้', 'ข้อไหนไม่ตรงกับคุณเลย กดข้ามได้'],
+            ['บันทึกอัตโนมัติ', 'ปิดหน้าไปแล้วกลับมาทำต่อได้'],
+          ].map(([title, desc]) => (
+            <li key={title} className="rounded-card border border-line bg-surface px-4 py-3">
+              <p className="font-medium text-ink">{title}</p>
+              <p className="text-muted">{desc}</p>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     );
   }
@@ -188,49 +339,12 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
   if (state === 'quiz') {
     const question = CAREER_QUIZ[step];
     const chosen = answers[question.id];
-
-    function select(optId: string) {
-      setAnswers((a) => ({ ...a, [question.id]: optId }));
-      setError('');
-    }
-
-    function next() {
-      if (!chosen) { setError('เลือกคำตอบก่อนนะ'); return; }
-      if (step + 1 < CAREER_QUIZ.length) {
-        setStep(step + 1);
-      } else {
-        // คำนวณผล
-        setState('calculating');
-        setTimeout(() => {
-          const profile = scoreCareerQuiz(answers);
-          const result = recommendCareers(profile, careers, 5);
-          setMatches(result);
-
-          // หา top dims จาก profile
-          const sorted = [...profile.dims.entries()]
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 4)
-            .filter(([, v]) => v >= 30)
-            .map(([d]) => d);
-          setTopDimsList(sorted);
-
-          // บันทึก event
-          trackEvent(sessionId, 'CAREER_TEST_COMPLETE', {
-            metadata: { top_careers: result.slice(0, 3).map((m) => m.career.slug) },
-          });
-          // results แสดงทันทีในหน้าเดียวกัน — ยิง RESULT_VIEW คู่กับ COMPLETE
-          trackEvent(sessionId, 'CAREER_RESULT_VIEW');
-
-          setState('results');
-        }, 2800);
-      }
-    }
-
-    function prev() {
-      if (step > 0) { setStep(step - 1); setError(''); }
-    }
-
     const progress = Math.round(((step + 1) / CAREER_QUIZ.length) * 100);
+    const cheer =
+      progress >= 90 ? 'อีกนิดเดียว!' :
+      progress >= 50 ? 'เกินครึ่งทางแล้ว' :
+      progress >= 25 ? 'ไปได้สวย' :
+      'ไม่มีคำตอบถูกหรือผิด';
 
     return (
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 py-6">
@@ -238,7 +352,7 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
         <div className="flex flex-col gap-2">
           <div className="flex justify-between text-xs text-muted">
             <span>ข้อ {step + 1} จาก {CAREER_QUIZ.length}</span>
-            <span>{progress}%</span>
+            <span aria-live="polite">{cheer}</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-ground">
             <div
@@ -249,7 +363,7 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
         </div>
 
         {/* Question */}
-        <fieldset className="flex flex-col gap-5">
+        <fieldset key={step} className="anim-fadein flex flex-col gap-5">
           <legend
             ref={headingRef}
             tabIndex={-1}
@@ -262,34 +376,45 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
           )}
 
           <div className="flex flex-col gap-3" role="group" aria-describedby={question.helper ? helperId : undefined}>
-            {question.options.map((opt) => (
-              <label
-                key={opt.id}
-                className={`flex cursor-pointer items-start gap-4 rounded-card border p-4 transition-all duration-150 hover:border-brand hover:bg-brand-light/30 ${
-                  chosen === opt.id
-                    ? 'border-brand bg-brand-light/40 shadow-lift'
-                    : 'border-line bg-surface'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name={question.id}
-                  value={opt.id}
-                  checked={chosen === opt.id}
-                  onChange={() => select(opt.id)}
-                  className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
-                />
-                <span className="flex flex-col gap-0.5">
-                  <span className="font-medium text-ink">{opt.label}</span>
-                  {opt.hint && <span className="text-sm text-muted">{opt.hint}</span>}
-                </span>
-              </label>
-            ))}
+            {optionOrder[step].map((opt, i) => {
+              const isChosen = chosen === opt.id;
+              return (
+                <label
+                  key={opt.id}
+                  className={`group flex min-h-[60px] cursor-pointer items-center gap-4 rounded-card border-2 px-4 py-3 transition-all duration-150 hover:border-brand has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand has-[:focus-visible]:ring-offset-2 active:scale-[0.99] ${
+                    isChosen
+                      ? 'border-brand bg-brand-light/50 shadow-lift'
+                      : 'border-line bg-surface hover:bg-brand-light/30'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={question.id}
+                    value={opt.id}
+                    checked={isChosen}
+                    onChange={() => select(opt.id)}
+                    onClick={() => isChosen && select(opt.id)}
+                    className="sr-only"
+                  />
+                  <span
+                    aria-hidden
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
+                      isChosen ? 'bg-brand text-white' : 'bg-ground text-muted group-hover:text-brand-deep'
+                    }`}
+                  >
+                    {isChosen ? '✓' : i + 1}
+                  </span>
+                  <span className="flex flex-col gap-0.5">
+                    <span className="font-medium text-ink">{opt.label}</span>
+                    {opt.hint && <span className="text-sm text-muted">{opt.hint}</span>}
+                  </span>
+                </label>
+              );
+            })}
           </div>
-
-          {error && (
-            <p role="alert" className="text-sm font-medium text-alert">{error}</p>
-          )}
+          <p className="hidden text-xs text-muted sm:block">
+            คลิกหรือกดเลข 1–{optionOrder[step].length} เพื่อเลือก{isLast ? '' : ' แล้วจะไปข้อถัดไปเอง'}
+          </p>
         </fieldset>
 
         {/* Navigation */}
@@ -300,16 +425,26 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
               onClick={prev}
               className="inline-flex min-h-[44px] items-center rounded-lg border border-line px-4 text-sm text-muted transition-colors hover:border-brand hover:text-brand-deep"
             >
-              ย้อนกลับ
+              ← ย้อนกลับ
             </button>
           )}
-          <button
-            type="button"
-            onClick={next}
-            className="ml-auto inline-flex min-h-[44px] items-center justify-center rounded-lg bg-brand px-6 font-medium text-white transition-colors hover:bg-brand-deep"
-          >
-            {step + 1 < CAREER_QUIZ.length ? 'ถัดไป' : 'ดูผลลัพธ์'}
-          </button>
+          {chosen ? (
+            <button
+              type="button"
+              onClick={goNext}
+              className="ml-auto inline-flex min-h-[44px] items-center justify-center rounded-lg bg-brand px-6 font-medium text-white transition-colors hover:bg-brand-deep"
+            >
+              {isLast ? 'ดูผลลัพธ์' : 'ถัดไป →'}
+            </button>
+          ) : question.kind === 'interest' && (
+            <button
+              type="button"
+              onClick={goNext}
+              className="ml-auto inline-flex min-h-[44px] items-center rounded-lg px-4 text-sm font-medium text-muted transition-colors hover:bg-brand-light/40 hover:text-brand-deep"
+            >
+              {isLast ? 'ข้ามแล้วดูผลลัพธ์' : 'ไม่มีข้อไหนตรง — ข้าม'}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -333,7 +468,7 @@ export function CareerQuizFlow({ careers, projects, initialSessionId }: Props) {
           <p className="text-sm text-muted">ระบบกำลังเปรียบเทียบกับ {careers.length} อาชีพ</p>
         </div>
         <div className="w-full max-w-xs overflow-hidden rounded-full bg-ground">
-          <div className="anim-fillbar h-2 rounded-full bg-brand" />
+          <div className="anim-fillbar h-2 rounded-full bg-brand" style={{ animationDuration: '1.5s' }} />
         </div>
       </div>
     );
